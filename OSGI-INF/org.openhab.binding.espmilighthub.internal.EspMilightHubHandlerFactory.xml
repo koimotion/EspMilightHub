@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0" configuration-pid="binding.espmilighthub" immediate="true" name="org.openhab.binding.espmilighthub.internal.EspMilightHubHandlerFactory">
+   <service>
+      <provide interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory"/>
+   </service>
+   <implementation class="org.openhab.binding.espmilighthub.internal.EspMilightHubHandlerFactory"/>
+</scr:component>
