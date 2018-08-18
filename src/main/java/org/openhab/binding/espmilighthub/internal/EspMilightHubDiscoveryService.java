@@ -1,14 +1,10 @@
 /**
- * Copyright (c) 2014,2018 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0
- *
- * SPDX-License-Identifier: EPL-2.0
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.openhab.binding.espmilighthub.internal;
 
@@ -125,18 +121,16 @@ public class EspMilightHubDiscoveryService extends AbstractDiscoveryService {
 
     @Override
     protected void startScan() {
-        logger.info("EspMilightHubDiscoveryService is clearing out old found things from your inbox");
         removeOlderResults(getTimestampOfLastScan());
 
         if (EspMilightHubBridgeHandler.confirmedBridgeUID == null) {
             logger.info(
-                    "EspMilightHubDiscoveryService found no ONLINE EspMilightHub bridges. You need to add/edit the Bridge to add your MQTT details.");
+                    "No ONLINE EspMilightHub bridges were found. You need to add then edit a Bridge with your MQTT details before any of your globes can be found.");
             ThingTypeUID thingtypeuid = THING_TYPE_BRIDGE;
             ThingUID thingUID = new ThingUID(thingtypeuid, "Auto001");
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withLabel("EspMilightHub")
                     .withThingType(THING_TYPE_BRIDGE).build();
             thingDiscovered(discoveryResult);
-
         }
 
         else if (!"empty".equals(EspMilightHubBridgeHandler.confirmedAddress)) {

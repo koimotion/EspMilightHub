@@ -5,92 +5,109 @@
 
 <bridge-type id="esp8266Bridge">
 <label>EspMilightHub</label>
-<description>ADD THIS FIRST: This is for an Opensource esp8266 based Bridge/hub for Milight globes. After adding this Openhab2 can find and use your globes.</description>
+<description>ADD THIS FIRST: This is for an Opensource esp8266 based Bridge/hub for Milight globes. After adding this Openhab2 can then find and use your globes after you edit and give your MQTT broker details.</description>
           
 <config-description>
-<parameter name="ADDR" type="text" required="true">
+
+<parameter-group name="MQTT Broker Settings">
+<label>MQTT Broker Settings</label>
+<advanced>false</advanced>
+</parameter-group>
+
+<parameter-group name="Whitemode Shortcuts">
+<label>Shortcuts for turning the globes back to white</label>
+<advanced>false</advanced>
+</parameter-group>
+    
+<parameter-group name="Globe Settings">
+<label>Global Globe Settings</label>
+<advanced>false</advanced>
+</parameter-group>
+
+
+<parameter name="ADDR" type="text" required="true" groupName="MQTT Broker Settings">
 <label>MQTT broker address</label>
 <description>Use this format tcp://192.168.1.2:1883 and be sure to include both the IP and Port number. tcp://localhost:1883 is also valid.
 </description>
 <default>tcp://192.168.1.100:1883</default>             
 </parameter>
 
-<parameter name="MQTT_USERNAME" type="text" required="false">
+<parameter name="MQTT_USERNAME" type="text" required="false" groupName="MQTT Broker Settings">
 <label>User name for MQTT broker.</label>
 <description>Enter the User name used to connect to your MQTT broker, or leave blank if none is needed to connect.
 </description>
 </parameter>
             
-<parameter name="MQTT_PASSWORD" type="text" required="false">
+<parameter name="MQTT_PASSWORD" type="text" required="false" groupName="MQTT Broker Settings">
 <context>password</context>
 <label>Password for MQTT Broker.</label>
 <description>Enter Password for your MQTT Broker, or leave blank if none is needed to connect.
 </description>
 </parameter>
 
-<parameter name="DEFAULT_COMMAND" type="text" required="true">
+<parameter name="DEFAULT_COMMAND" type="text" required="true" groupName="Globe Settings">
 <label>Default command to send when nothing is selected.</label>
 <description>When the send command button is pressed, if no selection is made from the list then use this command by default. TIP: use "set_white" for RGBW globes to set back to white light quickly.
 </description>
 <default>night_mode</default>
 </parameter>
 
-<parameter name="TRIGGER_WHITE_HUE" type="integer" required="true" min="-1" max="360">
+<parameter name="TRIGGER_WHITE_HUE" type="integer" required="true" min="-1" max="360" groupName="Whitemode Shortcuts">
 <label>The HUE value that Google home or Echo can use to turn globes back to true white.</label>
-<description>When both these Hue and Saturation values are seen by the binding it will trigger the light to turn back to using the white LEDS instead of using the RGB to emulate white. Set to -1 to disable.
+<description>When both these Hue and Saturation values are seen by the binding it will trigger the light to turn back to using the white LEDS instead of using the RGB to emulate white. Set to -1 to disable, or 36 for Google Home.
 </description>
 <default>36</default>
 </parameter>
 
-<parameter name="TRIGGER_WHITE_SAT" type="integer" required="true" min="-1" max="100">
+<parameter name="TRIGGER_WHITE_SAT" type="integer" required="true" min="-1" max="100" groupName="Whitemode Shortcuts">
 <label>The Saturation value that Google home or Echo can use to turn globes back to true white.</label>
-<description>When both these Hue and Saturation values are seen by the binding it will trigger the light to turn back to using the white LEDS instead of using the RGB to emulate white. Set to -1 to disable.
+<description>When both these Hue and Saturation values are seen by the binding it will trigger the light to turn back to using the white LEDS instead of using the RGB to emulate white. Set to -1 to disable, or 32 for Google Home.
 </description>
 <default>32</default>
 </parameter>
 
-<parameter name="FAVOURITE_WHITE" type="integer" required="true" min="153" max="370">
+<parameter name="FAVOURITE_WHITE" type="integer" required="true" min="153" max="370" groupName="Globe Settings">
 <label>The white colour temperature that you prefer to be used as WHITE.</label>
-<description>When Google Home or Echo triggers white, use this white value instead of the default colour.
+<description>When one of the shortcuts triggers white mode, use this for the colour white instead of the default colour.
 </description>
 <default>200</default>
 </parameter>
 
-<parameter name="AUTOCTEMP_MAXDIMMED_TEMPERATURE" type="integer" required="false" min="153" max="370">
+<parameter name="AUTOCTEMP_MAXDIMMED_TEMPERATURE" type="integer" required="false" min="153" max="370" groupName="Globe Settings">
 <label>The white colour temperature that you prefer when the light is dimmed all the way down. RGB_CCT and CCT globes only.</label>
 <description>Can be used to emulate the dimming of halogen globes that grow warmer the more they are dimmed. Try setting this to 350 to start with. If this is not null/empty the globes will change from the "Favourite white" colour temperature when at full brightness to this value when the globe is at the dullest brightness.
 </description>
 </parameter>
 
-<parameter name="DELAY_BETWEEN_MQTT" type="integer" required="true" min="5" max="1000">
+<parameter name="DELAY_BETWEEN_MQTT" type="integer" required="true" min="5" max="1000" groupName="MQTT Broker Settings">
 <label>Delay in milliseconds between all outgoing MQTT messages.</label>
 <description>Use this to prevent messages building up in the esp8266 buffers if the hub can not transmit to the globes fast enough. TIP: Play with 'packet_repeats' in esp8266 control panel as lower values speed up transmit times.
 </description>
 <default>250</default>
 </parameter>
 
-<parameter name="DELAY_BETWEEN_SAME_GLOBE" type="integer" required="true" min="5" max="1000">
+<parameter name="DELAY_BETWEEN_SAME_GLOBE" type="integer" required="true" min="5" max="1000" groupName="MQTT Broker Settings">
 <label>Delay in milliseconds between multiple outgoing MQTT messages heading to the same globe in a row.</label>
-<description>This feature will create less messages per second to the same globe when dragging around a color item.
+<description>This feature will create less messages per second to the same globe when dragging a finger around a color item.
 </description>
 <default>250</default>
 </parameter>
 
-<parameter name="1TRIGGERS_NIGHT_MODE" type="boolean" required="true">
+<parameter name="1TRIGGERS_NIGHT_MODE" type="boolean" required="true" groupName="Globe Settings">
 <label>Make 1% brightness trigger the night mode.</label>
-<description>The night mode is a much lower level of light and this allows it to be auto selected when your fader/slider is at 1%. Locks out remotes.
+<description>The night mode is a much lower level of light and this allows it to be auto selected when your fader/slider moves to 1%. NOTE: Night mode locks out some of the controls from physical remotes.
 </description>
 <default>false</default>
 </parameter>
 
-<parameter name="POWERFAILS_TO_MINDIM" type="boolean" required="true">
+<parameter name="POWERFAILS_TO_MINDIM" type="boolean" required="true" groupName="Globe Settings">
 <label>Default to the lowest level of light when the power fails.</label>
-<description>If lights loose power from the power switch OR a power outage they will default not to the previous light level but to the lowest level.
+<description>If lights loose power from the power switch OR a power outage, they will default not to the previous light level but to the lowest brightness.
 </description>
 <default>false</default>
 </parameter>
 
-<parameter name="RGBW_WHITEMODE_SAT_THRESHOLD" type="integer" required="true" min="-1" max="99">
+<parameter name="RGBW_WHITEMODE_SAT_THRESHOLD" type="integer" required="true" min="-1" max="99" groupName="Whitemode Shortcuts">
 <label>Saturation threshold for triggering white mode (RGBW globes only).</label>
 <description>Since RGBW globes do not respond to saturation changes, this feature allows you to specify a number that if the saturation drops below it will trigger the white mode.
 </description>
@@ -105,8 +122,9 @@
         <supported-bridge-type-refs>
             <bridge-type-ref id="esp8266Bridge" />
         </supported-bridge-type-refs>
-        <label>RGB+CW+WW Globe (RGB_CCT)</label>
+        <label>RGB+CW+WW Globe (rgb_cct)</label>         
         <description>Led globe with full Colour, cool, and warm whites with saturation controls</description>
+        <category>Lightbulb</category> 
         <channels>
             <channel id="level" typeId="level"/>
             <channel id="colourtemperature" typeId="colourtemperature"/>
@@ -122,8 +140,9 @@
         <supported-bridge-type-refs>
             <bridge-type-ref id="esp8266Bridge" />
         </supported-bridge-type-refs>
-        <label>RGB+CW+WW Globe via FUT089 remote (FUT089)</label>
-        <description>Use this when your remote is the newer 8 group type called FUT089 and your globes are RGB_CCT</description>
+        <label>RGB+CW+WW Globe controlled via FUT089 remote (fut089)</label>
+        <description>Use this when your remote is the newer 8 group type called FUT089 and your globes are rgb_cct</description>
+        <category>Lightbulb</category> 
         <channels>
             <channel id="level" typeId="level"/>
             <channel id="colourtemperature" typeId="colourtemperature"/>
@@ -134,13 +153,27 @@
             <channel id="sendbulbcommand" typeId="sendbulbcommand"/>       
         </channels>
     </thing-type>
+    
+    <thing-type id="fut091">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="esp8266Bridge" />
+        </supported-bridge-type-refs>
+        <label>Dual White Globe controlled via FUT091 remote (fut091)</label>
+        <description>Use this when your remote is the newer fut091 and your globes are cct</description>
+        <category>Lightbulb</category> 
+        <channels>
+            <channel id="level" typeId="level"/>
+            <channel id="colourtemperature" typeId="colourtemperature"/>   
+        </channels>
+    </thing-type>
    
         <thing-type id="cct">
         <supported-bridge-type-refs>
             <bridge-type-ref id="esp8266Bridge" />
         </supported-bridge-type-refs>
-        <label>Dual White Globe(CCT)</label>
+        <label>Dual White Globe(cct)</label>
         <description>Led globe with both cool and warm white controls</description>
+        <category>Lightbulb</category> 
         <channels>
             <channel id="level" typeId="level"/>
             <channel id="colourtemperature" typeId="colourtemperature"/>
@@ -151,8 +184,9 @@
         <supported-bridge-type-refs>
             <bridge-type-ref id="esp8266Bridge" />
         </supported-bridge-type-refs>
-        <label>RGB and White Globe(RGBW)</label>
+        <label>RGB and White Globe(rgbw)</label>
         <description>RGB Globe with a fixed white</description>
+        <category>Lightbulb</category> 
         <channels>
             <channel id="level" typeId="level"/>
             <channel id="colour" typeId="colour"/>
@@ -168,8 +202,9 @@
         <supported-bridge-type-refs>
             <bridge-type-ref id="esp8266Bridge" />
         </supported-bridge-type-refs>
-        <label>RGB only Globe(RGB)</label>
+        <label>RGB only Globe(rgb)</label>
         <description>RGB Globe with no white</description>
+        <category>Lightbulb</category> 
         <channels>
             <channel id="level" typeId="level"/>
             <channel id="colour" typeId="colour"/>
@@ -184,37 +219,39 @@
         <item-type>Dimmer</item-type>
         <label>Level</label>
         <description>Level changes the brightness of the globe.</description>
-        <category>Light</category>
+        <category>DimmableLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
         </channel-type>
       
         <channel-type id="colourtemperature">
         <item-type>Dimmer</item-type>
         <label>Color temperature</label>
         <description>Change from cool to warm white with this control.</description>
-        <category>Light</category>
+        <category>DimmableCT</category>
         </channel-type>
     
         <channel-type id="colour">
         <item-type>Color</item-type>
-        <label>Colour</label>
-        <description>Allows you to change the colour of the globe.</description>
+        <label>Color</label>
+        <description>Allows you to change the color of the globe.</description>
         <category>ColorLight</category>
         <tags>
-        <tag>Lighting</tag>
+            <tag>Lighting</tag>
         </tags>
         </channel-type>
 
         <channel-type id="nightmode">
         <item-type>Switch</item-type>
         <label>Nightmode</label>
-        <description>Night mode: Lowest level of light that locks out changes from the remotes.</description>           
+        <description>Night mode: Lowest level of light that locks out changes from the remotes.</description>       
         </channel-type>
     
         <channel-type id="saturation" advanced="true">
         <item-type>Dimmer</item-type>
         <label>Saturation</label>
         <description>Saturation is how much white light is added to a pure colour.</description>
-        <category>ColorLight</category>
         </channel-type>
     
    
@@ -222,7 +259,6 @@
         <item-type>String</item-type>
         <label>Command to send</label>
         <description>Choose the command to send to the globe then press the button to send it multiple times. Note: Not all globes support all commands.</description>
-        <category>Light</category>
         <state>
             <options>
                 <option value="next_mode">next_mode</option>
@@ -245,15 +281,13 @@
         <channel-type id="sendbulbcommand">
         <item-type>Switch</item-type>
         <label>Send selected command</label>
-        <description>Send the command selected in the list.</description>      
-        <category>Lightbulb</category>     
+        <description>Send the command selected in the list.</description>       
         </channel-type>
         
         <channel-type id="bulbmode">
         <item-type>String</item-type>
         <label>Current bulb mode</label>
         <description>Displays the mode the bulb is currently in.</description>
-        <category>Lightbulb</category>
         <state readOnly="true">
             <options>
                 <option value="white">white</option>
@@ -269,7 +303,6 @@
         <item-type>Number</item-type>
         <label>Disco mode</label>
         <description>Switch to a Disco mode directly by using the number. Not supported by all globe types.</description>
-        <category>Light</category>
         <state>
             <options>
                 <option value="0">Disco 0</option>

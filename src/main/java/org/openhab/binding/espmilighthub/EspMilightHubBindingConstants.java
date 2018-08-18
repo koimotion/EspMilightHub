@@ -1,14 +1,10 @@
 /**
- * Copyright (c) 2014,2018 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0
- *
- * SPDX-License-Identifier: EPL-2.0
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 
 package org.openhab.binding.espmilighthub;
@@ -35,8 +31,9 @@ public class EspMilightHubBindingConstants {
     public static final ThingTypeUID THING_TYPE_RGBW = new ThingTypeUID(BINDING_ID, "rgbw");
     public static final ThingTypeUID THING_TYPE_RGB = new ThingTypeUID(BINDING_ID, "rgb");
     public static final ThingTypeUID THING_TYPE_FUT089 = new ThingTypeUID(BINDING_ID, "fut089");
+    public static final ThingTypeUID THING_TYPE_FUT091 = new ThingTypeUID(BINDING_ID, "fut091");
 
-    // Bridge Things//
+    // Bridge config//
     public static final String CONFIG_MQTT_ADDRESS = "ADDR";
     public static final String CONFIG_MQTT_USER_NAME = "MQTT_USERNAME";
     public static final String CONFIG_MQTT_PASSWORD = "MQTT_PASSWORD";
@@ -51,7 +48,7 @@ public class EspMilightHubBindingConstants {
     public static final String CONFIG_RGBW_WHITEMODE_SAT_THRESHOLD = "RGBW_WHITEMODE_SAT_THRESHOLD";
     public static final String CONFIG_POWERFAILS_TO_MINDIM = "POWERFAILS_TO_MINDIM";
 
-    // Globe Things
+    // Globe channels
     public static final String CHANNEL_LEVEL = "level";
     public static final String CHANNEL_COLOUR = "colour";
     public static final String CHANNEL_COLOURTEMP = "colourtemperature";

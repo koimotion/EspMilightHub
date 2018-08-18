@@ -1,14 +1,10 @@
 /**
- * Copyright (c) 2014,2018 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0
- *
- * SPDX-License-Identifier: EPL-2.0
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.openhab.binding.espmilighthub.handler;
 
@@ -50,10 +46,10 @@ public class EspMilightHubHandler extends BaseThingHandler {
     private String bulbMode = "empty";
     @SuppressWarnings("unused")
     private Configuration config;
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<ThingTypeUID>(
-            Arrays.asList(THING_TYPE_RGBW, THING_TYPE_RGB_CCT, THING_TYPE_FUT089, THING_TYPE_CCT, THING_TYPE_RGB));
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<ThingTypeUID>(Arrays.asList(
+            THING_TYPE_RGBW, THING_TYPE_RGB_CCT, THING_TYPE_FUT089, THING_TYPE_FUT091, THING_TYPE_CCT, THING_TYPE_RGB));
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(EspMilightHubHandler.class);
 
     public EspMilightHubHandler(Thing thing) {
         super(thing);
@@ -101,13 +97,15 @@ public class EspMilightHubHandler extends BaseThingHandler {
         {
 
             case CHANNEL_LEVEL:
-                if ("cct".equals(globeType)) {
-                    if ("100".equals(command.toString())) {// fixes current bug in the esp8266 firmwares
-                        bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":99}");
-                        savedLevel = "99";
-                        break;
-                    }
-                } // end of CCT globe
+                /*
+                 * if ("cct".equals(globeType)) {
+                 * if ("100".equals(command.toString())) {
+                 * bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":100}");
+                 * savedLevel = "100";
+                 * break;
+                 * }
+                 * } // end of CCT globe
+                 */
 
                 if ("0".equals(command.toString()) || "OFF".equals(command.toString())) {
                     if ("cct".equals(globeType)) {
@@ -120,23 +118,23 @@ public class EspMilightHubHandler extends BaseThingHandler {
 
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"OFF\",\"level\":0}");
                     }
-                    break;
+                    return;
                 } else if ("ON".equals(command.toString())) {
                     if ("cct".equals(globeType)) {
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\"}");
                     } else {
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + this.savedLevel + "}");
                     }
-                    break;
+                    return;
 
                 } else if ("1".equals(command.toString()) && bridgeHandler.get1TriggersNightMode()) {
                     bridgeHandler.queueToSendMQTT(topic, "{\"command\":\"night_mode\"}");
-                    break;
+                    return;
                 }
 
                 bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + command.toString() + "}");
 
-                if (globeType.equals("cct") || globeType.equals("rgb_cct") || globeType.equals("fut089")) {
+                if (globeType.equals("rgb_cct") || globeType.equals("fut089")) {
 
                     if (bridgeHandler.getAutoCTempValue() != 0 && bulbMode.equals("white")) {
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"color_temp\":"
@@ -147,13 +145,20 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 this.savedLevel = command.toString();
                 break;
 
+            case CHANNEL_BULB_MODE:
+                logger.debug("bulb mode is {}", command.toString());
+                bulbMode = command.toString();
+                break;
+
             case CHANNEL_COLOURTEMP:
                 int scaledCommand = (int) Math.round((370 - (2.17 * Float.valueOf(command.toString()))));
-                if (scaledCommand == 370 && "cct".equals(globeType)) {
-                    scaledCommand = 369; // fixes current bug in the esp8266 firmwares
-                }
+                // if (scaledCommand == 370 && "cct".equals(globeType)) {
+                // scaledCommand = 369; // fixes current bug in the esp8266 firmwares
+                // }
 
-                bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"color_temp\":" + scaledCommand + "}");
+                // bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"color_temp\":" + scaledCommand + "}");
+                bridgeHandler.queueToSendMQTT(topic,
+                        "{\"state\":\"ON\",\"level\":" + savedLevel + ",\"color_temp\":" + scaledCommand + "}");
                 break;
 
             case CHANNEL_COMMAND:
@@ -257,7 +262,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + command.toString() + "}");
                 this.savedLevel = command.toString();
 
-                if (globeType.equals("cct") || globeType.equals("rgb_cct") || globeType.equals("fut089")) {
+                if (globeType.equals("rgb_cct") || globeType.equals("fut089")) {
 
                     // logger.debug("BulbMode is:{}", bulbMode);
 
