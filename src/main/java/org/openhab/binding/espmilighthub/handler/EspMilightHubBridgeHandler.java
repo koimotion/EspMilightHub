@@ -478,7 +478,9 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public void disconnectMQTT() {
         try {
             client.disconnect();
-        } catch (MqttException e) {
+            // wait needed to fix issue when trying to reconnect too fast after a disconnect.
+            Thread.sleep(3000);
+        } catch (MqttException | InterruptedException e) {
             logger.error("Could not disconnect from MQTT broker.{}", e);
         }
     }
