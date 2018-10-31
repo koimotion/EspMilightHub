@@ -6,6 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.espmilighthub.internal;
 
 import static org.openhab.binding.espmilighthub.EspMilightHubBindingConstants.*;
@@ -28,6 +29,13 @@ import org.openhab.binding.espmilighthub.handler.EspMilightHubHandler;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+/**
+ * The {@link EspMilightHubDiscoveryService} is responsible for finding globes
+ * and setting them up for the handlers.
+ *
+ * @author Matthew Skinner - Initial contribution
+ */
 
 @Component(service = DiscoveryService.class, immediate = true, configurationPid = "binding.espmilighthub")
 public class EspMilightHubDiscoveryService extends AbstractDiscoveryService {

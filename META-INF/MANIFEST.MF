@@ -7,7 +7,7 @@ Bundle-Name: EspMilightHub Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.openhab.binding.espmilighthub;singleton:=true
 Bundle-Vendor: openHAB
-Bundle-Version: 2.3.0.qualifier
+Bundle-Version: 2.4.0.qualifier
 Export-Package: 
  org.openhab.binding.espmilighthub,
  org.openhab.binding.espmilighthub.handler

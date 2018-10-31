@@ -9,13 +9,6 @@
 
 package org.openhab.binding.espmilighthub.handler;
 
-/**
- * The {@link EspMilightHubBridgeHandler} is responsible for handling the bridge commands and all MQTT comms, which are
- * sent to one of the channels.
- *
- * @author Matthew Skinner - Initial contribution
- */
-
 import static org.openhab.binding.espmilighthub.EspMilightHubBindingConstants.*;
 
 import java.util.Collections;
@@ -52,6 +45,13 @@ import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+/**
+ * The {@link EspMilightHubBridgeHandler} is responsible for handling the bridge commands and all MQTT comms, which are
+ * sent to one of the channels.
+ *
+ * @author Matthew Skinner - Initial contribution
+ */
 
 public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements MqttCallbackExtended {
 
