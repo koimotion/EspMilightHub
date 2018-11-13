@@ -111,12 +111,10 @@ public class EspMilightHubHandler extends BaseThingHandler {
                     if ("cct".equals(globeType)) {
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"OFF\"}");
                     } else {
-
                         if (bridgeHandler.getPowerFailsToMaxDim()) {
                             bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":0}");
                         }
-
-                        bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"OFF\",\"level\":0}");
+                        bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"OFF\"}");
                     }
                     return;
                 } else if ("ON".equals(command.toString())) {
