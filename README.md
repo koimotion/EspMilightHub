@@ -159,7 +159,7 @@ The binding is setup by default for google home, so if using Alexa go into the s
 Example for Google Home:
 
 ```   
-Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456", TRIGGER_WHITE_HUE=36, TRIGGER_WHITE_SAT = 32, FAVOURITE_WHITE = 300]
+Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456", TRIGGER_WHITE_HUE=36, TRIGGER_WHITE_SAT = 32, FAVOURITE_WHITE = 200]
 {
         Thing   rgb_cct 0xEC591 "Front Hall"    //comments are possible after double /  
 }
@@ -168,7 +168,7 @@ Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_US
 Example for Alexa:
 
 ```   
-Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456", TRIGGER_WHITE_HUE=36, TRIGGER_WHITE_SAT = 32, FAVOURITE_WHITE = 300]
+Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456", TRIGGER_WHITE_HUE=36, TRIGGER_WHITE_SAT = 32, FAVOURITE_WHITE = 200]
 {
         Thing   rgb_cct 0xEC591 "Front Hall"    //comments are possible after double /  
 }
