@@ -74,16 +74,16 @@ Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_US
 
 Additional bridge settings can be made with these:
 
-FAVOURITE_WHITE
-DELAY_BETWEEN_MQTT
-DELAY_BETWEEN_SAME_GLOBE
-TRIGGER_WHITE_SAT
-TRIGGER_WHITE_HUE
-DEFAULT_COMMAND
-1TRIGGERS_NIGHT_MODE
-RGBW_WHITEMODE_SAT_THRESHOLD
-POWERFAILS_TO_MINDIM
-AUTOCTEMP_MAXDIMMED_TEMPERATURE
++ FAVOURITE_WHITE
++ DELAY_BETWEEN_MQTT
++ DELAY_BETWEEN_SAME_GLOBE
++ TRIGGER_WHITE_SAT
++ TRIGGER_WHITE_HUE
++ DEFAULT_COMMAND
++ 1TRIGGERS_NIGHT_MODE
++ RGBW_WHITEMODE_SAT_THRESHOLD
++ POWERFAILS_TO_MINDIM
++ AUTOCTEMP_MAXDIMMED_TEMPERATURE
 
 
 By looking in PaperUI at your bridge (click on the pencil icon) you will get descriptions on what these do and what valid ranges are. If you use manual text configuration you can not change them in paperUI otherwise you get a conflict message in paperUI. 
@@ -197,5 +197,10 @@ To go back to white so long as you have not changed the bridges default settings
 Milight_Hue.sendCommand(36,32,100)
 ```
 
+Turn a globe on and then off
 
+```
+Milight_ID0xEC59_G1_Level.sendCommand(ON)
+Milight_ID0xEC59_G1_Level.sendCommand(OFF)
 
+```
