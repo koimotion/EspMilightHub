@@ -185,22 +185,30 @@ Color  Milight_Hue    "Front Hall" ["Lighting"] {channel="espmilighthub:rgb_cct:
 
 In an Openhab rule, you can use these commands to change the lights.
 
-Send a desired colour in HSB format.
+Send a desired colour in HSB format. (send to an items colour channel)
 
 ```
-Milight_Hue.sendCommand(100,100,100)
+Milight_Hue.sendCommand("100,100,100")
 ```
 
 To go back to white so long as you have not changed the bridges default settings, it is as easy as…
 
 ```
-Milight_Hue.sendCommand(36,32,100)
+Milight_Hue.sendCommand("36,32,100")
 ```
 
-Turn a globe on and then off
+Turn a globe on and then off (send to an items level channel)
 
 ```
 Milight_ID0xEC59_G1_Level.sendCommand(ON)
 Milight_ID0xEC59_G1_Level.sendCommand(OFF)
 
 ```
+
+Dim a globe to 70% (send to an items level channel)
+
+
+```
+Milight_ID0xEC59_G1_Level.sendCommand(70)
+```
+
