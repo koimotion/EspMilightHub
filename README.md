@@ -1,6 +1,6 @@
 # <bindingName> Binding
 
-This is a new openhab 2.x binding that allows a single opensource esp8266 bridge (created by Chris Mullins aka Sidoh) to automatically find and add milight globes into OpenHab2. The first question Openhab 2 users may have is “Why another binding when one already exists?”, The short answer/s to this is the new OPENSOURCE bridge allows:
+This is a new openhab 2.x binding that allows a single opensource esp8266 bridge (created by Chris Mullins aka Sidoh) to automatically find and add milight globes into OpenHab2. The first question Openhab 2 users may have is “Why another binding when one already exists?”, The short answers to this are the new OPENSOURCE bridge allows:
 
 + Almost unlimited groups so you can have individual control over an entire house of milight globes without multiple OEM bridges. A single bridge uses less power for one of many advantages of having only 1 hub/bridge.
 
@@ -11,6 +11,85 @@ This is a new openhab 2.x binding that allows a single opensource esp8266 bridge
 + If you reboot Openhab2 the state of the globes will refresh and display correctly after the reboot due to the hub tracking the states and recording them in the MQTT broker.
 
 + Many other reasons besides just being opensource and hence can get firmware updates to support new globes and wifi KRACK patches.
+
+
+## Steps to getting this binding running
+
++ Download the latest binding in a JAR format from http://www.pcmus.com/openhab/
+The zip files have a date code in the format DD-MM-YYYY for when the version was built.
+
++ Open the zip and place the JAR file into your Openhab 'addons' folder. You do not need to have any mqtt bindings installed as this binding is fully standalone and uses the java Paho library. This does not mean you do not need a MQTT broker somewhere reachable on your network.
+
++ Setup the firmware of the ESP8266 using the below instructions.
+
++ Setup the binding using the steps covered below using either paperUI or things and items files.
+
+## Setting up the esp8266 firmware
+
+Enter the control panel for the ESP8266 by using any browser and entering the IP address. Follow the blog http://blog.christophermullins.com/2017/02/11/milight-wifi-gateway-emulator-on-an-esp8266/248  on how to setup the ESP to connect to your WIFI.
+
+Set the following options in the firmware. Click on SETTINGS>MQTT>:
+
+***mqtt_topic_pattern***
+
+```
+milight/commands/:device_id/:device_type/:group_id
+```
+
+***mqtt_update_topic_pattern***
+
+```
+milight/states/:device_id/:device_type/:group_id
+```
+
+***mqtt_state_topic_pattern***
+
+```
+milight/states/:device_id/:device_type/:group_id
+```
+
+In the box called ***group_state_fields*** you need to untick "computed color", "brightness" and "Color", then you need to make sure the following are ticked:
+
++ state
++ level
++ hue
++ saturation
++ mode
++ color_temp
++ bulb_mode
+
+
+Fill in the MQTT broker fields then click ***save*** down the bottom and now when you use a milight remote control you will see MQTT topics being created that should include LEVEL and HSB. If you see brightness and not level, then go back and read the above setup steps carefully.
+
+You can use this linux command to watch all MQTT topics from milight:
+
+
+```
+mosquitto_sub -u usernamehere -P passwordhere -p 1883 -v -t 'milight/#'
+```
+
+You can also use the mosquitto_pub command to send your own commands and watch the bulbs respond. It is handy to do this if a globe I do not own does not work and you wish to request that I add a feature or fix something by giving me the mqtt message that works. Everything this binding does goes in and out via MQTT and it can be watched with the above command.
+
+
+## Setting up the binding in openhab2
+
+Just drop the JAR file into the addons folder and you should have the binding working which can now be setup with text files OR 100% with paperUI. Both methods will be covered below, but I recommend you use textual config as it is worth learning due to the speed you can make changes. Only use 1 method otherwise you will get conflict errors if trying to edit an existing thing using paperUI when the manual method has been used to define the thing.
+
+# Key concept to understand for you to succeed
+
+To get this working you need to know that the Milight globes are 1 way and do NOT have any kind of ID code. Only the remotes have a non editable code in them and when you LINK the globe to a remote, the globe learns this code which is referred as the remotes "Device ID". The remote has a "Group ID" of 1 to 4 if the remote supports 4 groups (some remotes support more than 4). The binding requires you to place these two numbers together to create the things unique ID. By looking at the manual configuration example below this may make it clearer for you. The DeviceID can be in hex or decimal format but it must end with the number that is the GroupID (usually 0 for all in a group or 1 to 9 can be used). If you do not understand this key concept please post a question. 
+
+The formula is
+ThingUID = DeviceID+GroupID
+
+examples:
+
+HEX
+0xb4c1 = DeviceID is 0xb4c and GroupID is 1
+
+Decimal (I don't recommend using decimal as it confuses too many people)
+21 = DeviceID is 2 and GroupID is 1
+
 
 ## Supported Things
 
@@ -212,3 +291,12 @@ Dim a globe to 70% (send to an items level channel)
 Milight_ID0xEC59_G1_Level.sendCommand(70)
 ```
 
+## FAQ
+
+To remove a globe from the saved states of your MQTT broker use this command:
+
+```
+ mosquitto_pub -u username -P password -p 1883 -t 'milight/states/0x0/rgb_cct/1' -n -r
+```
+
+Replace the topic with the one you wish to remove and this will stop the globe getting autodetected by this binding.
