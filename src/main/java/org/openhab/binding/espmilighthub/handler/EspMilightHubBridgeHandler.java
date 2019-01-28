@@ -267,7 +267,23 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     {
                         String globeType = (cutTopic.substring(0, index));
                         String remoteGroupID = (cutTopic.substring(++index, ++index));
-                        processIncomingState(globeType, remoteCode, remoteGroupID, payload);
+                        if ("0".contentEquals(remoteGroupID) && "fut089".contains(globeType)) {
+                            processIncomingState(globeType, remoteCode, "1", payload);
+                            processIncomingState(globeType, remoteCode, "2", payload);
+                            processIncomingState(globeType, remoteCode, "3", payload);
+                            processIncomingState(globeType, remoteCode, "4", payload);
+                            processIncomingState(globeType, remoteCode, "5", payload);
+                            processIncomingState(globeType, remoteCode, "6", payload);
+                            processIncomingState(globeType, remoteCode, "7", payload);
+                            processIncomingState(globeType, remoteCode, "8", payload);
+                        } else if ("0".contentEquals(remoteGroupID)) {
+                            processIncomingState(globeType, remoteCode, "1", payload);
+                            processIncomingState(globeType, remoteCode, "2", payload);
+                            processIncomingState(globeType, remoteCode, "3", payload);
+                            processIncomingState(globeType, remoteCode, "4", payload);
+                        } else {
+                            processIncomingState(globeType, remoteCode, remoteGroupID, payload);
+                        }
                     }
                 }
             } else if (!processIncommingMQTTTimerJob.isCancelled()) {
