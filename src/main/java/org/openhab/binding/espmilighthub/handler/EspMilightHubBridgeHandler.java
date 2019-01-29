@@ -56,7 +56,8 @@ import org.slf4j.LoggerFactory;
 public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements MqttCallbackExtended {
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
-
+    private final ScheduledExecutorService firstConnection = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> firstConnectionJob = null;
     private final Logger logger = LoggerFactory.getLogger(EspMilightHubBridgeHandler.class);
 
     public static String confirmedAddress = "empty";
@@ -313,16 +314,13 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     @Override
     public void connectComplete(boolean reconnect, java.lang.String serverURI) {
-
         logger.info("MQTT sucessfully connected");
-
         try {
             client.subscribe("milight/states/#", 1);
             updateStatus(ThingStatus.ONLINE);
         } catch (MqttException e) {
             logger.error("Error: Could not subscribe to 'milight/states/#' cause is:{}", e);
         }
-
     }
 
     @Override
@@ -351,7 +349,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             options.setMaxInflight(30); // up to 30 messages at once can be sent without a token back
             options.setAutomaticReconnect(true);
             options.setKeepAliveInterval(15);
-            // options.setConnectionTimeout(4); // connection must be made in under 4 seconds
+            // options.setConnectionTimeout(15); // connection must be made in under 15 seconds
 
             client.setCallback(this);
             client.connect(options);
@@ -493,6 +491,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     public void disconnectMQTT() {
         try {
+            logger.debug("disconnectMQTT() is going to disconnect from the MQTT broker.");
             client.disconnect();
             // wait needed to fix issue when trying to reconnect too fast after a disconnect.
             Thread.sleep(3000);
@@ -551,19 +550,31 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         return false;
     }
 
+    private void recordBridgeID() {
+        confirmedBridgeUID = this.getThing().getUID();
+    }
+
+    Runnable pollFirstConnection = new Runnable() {
+        @Override
+        public void run() {
+            logger.debug("pollFirstConnection is trying to connect to MQTT.");
+            if (connectMQTT(true)) {// connect to get a full list of globe states//
+                updateStatus(ThingStatus.ONLINE);
+                recordBridgeID();
+                firstConnectionJob.cancel(false);
+                firstConnectionJob = null;
+            } else {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                        "Could not connect to the MQTT broker, check the address, user and pasword are correct and the broker is online.");
+            }
+        }
+    };
+
     @Override
     public void initialize() {
         logger.debug("Initializing Bridge handler.");
         bridgeConfig = getThing().getConfiguration();
-
-        if (connectMQTT(true)) {// connect to get a full list of globe states//
-            updateStatus(ThingStatus.ONLINE);
-            confirmedBridgeUID = this.getThing().getUID();
-
-        } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                    "Could not connect to the MQTT broker, check the address, user and pasword are correct and the broker is online.");
-        }
+        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 0, 30, TimeUnit.SECONDS);
     }
 
     @Override
@@ -573,9 +584,15 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
         if (sendQueuedMQTTTimerJob != null) {
             sendQueuedMQTTTimerJob.cancel(true);
+            sendQueuedMQTTTimerJob = null;
         }
         if (processIncommingMQTTTimerJob != null) {
             processIncommingMQTTTimerJob.cancel(true);
+            processIncommingMQTTTimerJob = null;
+        }
+        if (firstConnectionJob != null) {
+            firstConnectionJob.cancel(true);
+            firstConnectionJob = null;
         }
     }
 

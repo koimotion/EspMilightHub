@@ -206,6 +206,19 @@ And a sample of the sitemap contents:
             }
 ```
 
+
+An example of how to group the lights so 1 control will effect any number of lights.
+
+
+```
+Group:Color LinenHallLights "Linen Hall" ["Lighting"]
+Color LinenHall1 "First Linen Hall" (LinenHallLights) ["Lighting"] {channel="espmilighthub:rgb_cct:001:0x55442:colour"}
+Color LinenHall2 "Second Linen Hall" (LinenHallLights) ["Lighting"] {channel="espmilighthub:rgb_cct:001:0x55443:colour"}
+
+```
+
+
+
 ## Fault Finding
 
 You can use this linux command to watch all MQTT topics from milight:
@@ -247,7 +260,7 @@ Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_US
 Example for Alexa:
 
 ```   
-Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456", TRIGGER_WHITE_HUE=36, TRIGGER_WHITE_SAT = 32, FAVOURITE_WHITE = 200]
+Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456", TRIGGER_WHITE_HUE=0, TRIGGER_WHITE_SAT = 100, FAVOURITE_WHITE = 200]
 {
         Thing   rgb_cct 0xEC591 "Front Hall"    //comments are possible after double /  
 }
@@ -258,6 +271,22 @@ example item for both the above:
 ```
 Color  Milight_Hue    "Front Hall" ["Lighting"] {channel="espmilighthub:rgb_cct:001:0xEC591:colour"}
 ```
+
+## How to reduce the delay between globes turning on/off or other setting changes.
+
+If you have lots of globes and openhab turns them all on, you may notice a delay that causes the globes to turn on one by one and the delay can add up when a lot of globes are installed in your house. This is caused by the time it takes to transmit the desired setting to the globe * by how many times the hub repeats transmitting the setting. Since it takes around 2.8ms for a setting to be transmitted, if the firmware is set to repeat the packets 50 times it would then take 2.8*50 = 140ms before the next globe starts to have its new state transmitted by the hub. You can reduce the packet repeats to speed up the response of this binding and the hub, but a few settings need to be considered...
+ 
+Multiply 2.8 by your packet-repeat value (rough figure of how long it takes to transit to the globe with current firmware) and start trying the DELAY_BETWEEN_MQTT at around that figure.
+
+Settings for the radio tab found in the esp control panel using your browser, mine are:
+
+Packet repeats = 12 (if you only turn 1 globe on or off it uses this value)
+Packet repeat throttle threshold= 200
+Packet repeat throttle sensitivity = 0
+Packet repeat minimum = 8 (When turning multiple globes on and off it will use this value as it throttles the repeats back to reduce latency/delay between each globe)
+
+Only use low repeat values if your hardware is working well, I find the default value of “3” much too low for the Packet repeat minimum setting. To set this value make the two repeat settings the same so they are consistent and then see how low you can go and get reliable transmission. Packet repeats and Packet repeats minimum are key settings to play with and start off making them the same value to play with.
+
 
 
 ## How to change the lights from a rule
