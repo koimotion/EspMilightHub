@@ -14,7 +14,7 @@ https://github.com/openhab/openhab2-addons
 
 == Third-party Content
 
-[name]
+Paho
 * License: Eclipse Public License Version 1.0 ("EPL") and Eclipse Distribution License Version 1.0 ("EDL")
 * Project: https://www.eclipse.org/paho/
 * Source:  https://github.com/eclipse/paho.mqtt.java
