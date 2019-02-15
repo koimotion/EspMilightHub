@@ -38,9 +38,7 @@ milight/commands/:device_id/:device_type/:group_id
 
 ***mqtt_update_topic_pattern***
 
-```
-milight/states/:device_id/:device_type/:group_id
-```
+leave this blank.
 
 ***mqtt_state_topic_pattern***
 

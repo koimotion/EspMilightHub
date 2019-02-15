@@ -89,8 +89,8 @@ public class EspMilightHubHandler extends BaseThingHandler {
 
             if (EspMilightHubBridgeHandler.readyToRefresh == 0) {
                 EspMilightHubBridgeHandler.readyToRefresh = 1;
-                bridgeHandler.disconnectMQTT();
-                bridgeHandler.connectMQTT(false);
+                bridgeHandler.subscribeToMQTT();
+                // bridgeHandler.connectMQTT(false);
             }
             return;
         }

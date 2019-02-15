@@ -311,20 +311,23 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             lockInComming.unlock();
         }
         if (processIncommingMQTTTimerJob == null) {
-            processIncommingMQTTTimerJob = schedulerIn.scheduleAtFixedRate(pollingIncommingQueuedMQTT, 10, 10,
+            processIncommingMQTTTimerJob = schedulerIn.scheduleWithFixedDelay(pollingIncommingQueuedMQTT, 10, 10,
                     TimeUnit.MILLISECONDS);
+        }
+    }
+
+    public void subscribeToMQTT() {
+        try {
+            client.subscribe("milight/states/#", 1);
+        } catch (MqttException e) {
+            logger.error("Error: Could not subscribe to 'milight/states/#' cause is:{}", e);
         }
     }
 
     @Override
     public void connectComplete(boolean reconnect, java.lang.String serverURI) {
         logger.info("MQTT sucessfully connected");
-        try {
-            client.subscribe("milight/states/#", 1);
-            updateStatus(ThingStatus.ONLINE);
-        } catch (MqttException e) {
-            logger.error("Error: Could not subscribe to 'milight/states/#' cause is:{}", e);
-        }
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -437,7 +440,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     if (sendQueuedMQTTTimerJob != null) {
                         sendQueuedMQTTTimerJob.cancel(false);
                     }
-                    sendQueuedMQTTTimerJob = schedulerOut.scheduleAtFixedRate(pollingSendQueuedMQTT,
+                    sendQueuedMQTTTimerJob = schedulerOut.scheduleWithFixedDelay(pollingSendQueuedMQTT,
                             Integer.parseInt(bridgeConfig.get(CONFIG_DELAY_BETWEEN_SAME_GLOBE).toString()),
                             Integer.parseInt(bridgeConfig.get(CONFIG_DELAY_BETWEEN_SAME_GLOBE).toString()),
                             TimeUnit.MILLISECONDS);
@@ -450,7 +453,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                 if (sendQueuedMQTTTimerJob != null) {
                     sendQueuedMQTTTimerJob.cancel(false);
                 }
-                sendQueuedMQTTTimerJob = schedulerOut.scheduleAtFixedRate(pollingSendQueuedMQTT,
+                sendQueuedMQTTTimerJob = schedulerOut.scheduleWithFixedDelay(pollingSendQueuedMQTT,
                         Integer.parseInt(bridgeConfig.get(CONFIG_DELAY_BETWEEN_MQTT).toString()),
                         Integer.parseInt(bridgeConfig.get(CONFIG_DELAY_BETWEEN_MQTT).toString()),
                         TimeUnit.MILLISECONDS);
@@ -472,7 +475,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         }
 
         if (sendQueuedMQTTTimerJob == null) {
-            sendQueuedMQTTTimerJob = schedulerOut.scheduleAtFixedRate(pollingSendQueuedMQTT, 0,
+            sendQueuedMQTTTimerJob = schedulerOut.scheduleWithFixedDelay(pollingSendQueuedMQTT, 0,
                     Integer.parseInt(bridgeConfig.get(CONFIG_DELAY_BETWEEN_MQTT).toString()), TimeUnit.MILLISECONDS);
             logger.debug("started timer because it was null.");
         }
@@ -495,8 +498,8 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     public void disconnectMQTT() {
         try {
-            logger.debug("disconnectMQTT() is going to disconnect from the MQTT broker.");
             client.disconnect();
+            logger.debug("disconnectMQTT() is going to disconnect from the MQTT broker.");
             // wait needed to fix issue when trying to reconnect too fast after a disconnect.
             Thread.sleep(3000);
         } catch (MqttException | InterruptedException e) {
@@ -562,7 +565,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         @Override
         public void run() {
             logger.debug("pollFirstConnection is trying to connect to MQTT.");
-            if (connectMQTT(true)) {// connect to get a full list of globe states//
+            if (connectMQTT(false)) {// connect to get a full list of globe states//
                 updateStatus(ThingStatus.ONLINE);
                 recordBridgeID();
                 firstConnectionJob.cancel(false);
