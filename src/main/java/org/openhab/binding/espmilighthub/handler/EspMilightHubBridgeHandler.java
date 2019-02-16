@@ -412,7 +412,9 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     sendQueuedMQTTTimerJob = null;
                     return;
                 }
-            } // end of isConnected
+            } // end
+              // of
+              // isConnected
         }
     };
 
@@ -564,15 +566,20 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     Runnable pollFirstConnection = new Runnable() {
         @Override
         public void run() {
-            logger.debug("pollFirstConnection is trying to connect to MQTT.");
-            if (connectMQTT(false)) {// connect to get a full list of globe states//
-                updateStatus(ThingStatus.ONLINE);
-                recordBridgeID();
+            logger.debug("pollFirstConnection() is running.");
+            if (thing.getStatus() == ThingStatus.ONLINE) {
                 firstConnectionJob.cancel(false);
                 firstConnectionJob = null;
+                // This delays the retained messages by 30 seconds to allow the handler to start.
+                subscribeToMQTT();
             } else {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                        "Could not connect to the MQTT broker, check the address, user and pasword are correct and the broker is online.");
+                if (connectMQTT(false)) {// connect to get a full list of globe states//
+                    updateStatus(ThingStatus.ONLINE);
+                    recordBridgeID();
+                } else {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                            "Could not connect to the MQTT broker, check the address, user and pasword are correct and the broker is online.");
+                }
             }
         }
     };
@@ -581,7 +588,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public void initialize() {
         logger.debug("Initializing Bridge handler.");
         bridgeConfig = getThing().getConfiguration();
-        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 0, 30, TimeUnit.SECONDS);
+        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 15, 30, TimeUnit.SECONDS);
     }
 
     @Override

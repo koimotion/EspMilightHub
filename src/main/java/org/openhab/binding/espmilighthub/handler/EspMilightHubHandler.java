@@ -84,14 +84,9 @@ public class EspMilightHubHandler extends BaseThingHandler {
     public void handleCommand(ChannelUID channelUID, Command command) {
 
         if (command.toString() == "REFRESH") {
-            logger.debug("Refresh command has been called to update Openhabs controls:{}",
-                    EspMilightHubBridgeHandler.readyToRefresh);
-
-            if (EspMilightHubBridgeHandler.readyToRefresh == 0) {
-                EspMilightHubBridgeHandler.readyToRefresh = 1;
-                bridgeHandler.subscribeToMQTT();
-                // bridgeHandler.connectMQTT(false);
-            }
+            logger.debug("'REFRESH' command has been called for:{}", channelUID);
+            // This will cause all retained messages to be resent. Disabled for now.
+            // bridgeHandler.subscribeToMQTT();
             return;
         }
 
@@ -102,15 +97,6 @@ public class EspMilightHubHandler extends BaseThingHandler {
         {
 
             case CHANNEL_LEVEL:
-                /*
-                 * if ("cct".equals(globeType)) {
-                 * if ("100".equals(command.toString())) {
-                 * bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":100}");
-                 * savedLevel = "100";
-                 * break;
-                 * }
-                 * } // end of CCT globe
-                 */
 
                 if ("0".equals(command.toString()) || "OFF".equals(command.toString())) {
                     if ("cct".equals(globeType)) {
@@ -155,11 +141,6 @@ public class EspMilightHubHandler extends BaseThingHandler {
 
             case CHANNEL_COLOURTEMP:
                 int scaledCommand = (int) Math.round((370 - (2.17 * Float.valueOf(command.toString()))));
-                // if (scaledCommand == 370 && "cct".equals(globeType)) {
-                // scaledCommand = 369; // fixes current bug in the esp8266 firmwares
-                // }
-
-                // bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"color_temp\":" + scaledCommand + "}");
                 bridgeHandler.queueToSendMQTT(topic,
                         "{\"state\":\"ON\",\"level\":" + savedLevel + ",\"color_temp\":" + scaledCommand + "}");
                 break;
