@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions bindingId="espmilighthub" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
 <bridge-type id="esp8266Bridge">
 <label>EspMilightHub</label>
 <description>ADD THIS FIRST: This is for an Opensource esp8266 based Bridge/hub for Milight globes. After adding this Openhab2 can then find and use your globes after you edit and give your MQTT broker details.</description>
-          
+
 <config-description>
 
 <parameter-group name="MQTT Broker Settings">
@@ -18,7 +18,7 @@
 <label>Shortcuts for turning the globes back to white</label>
 <advanced>false</advanced>
 </parameter-group>
-    
+
 <parameter-group name="Globe Settings">
 <label>Global Globe Settings</label>
 <advanced>false</advanced>
@@ -29,7 +29,7 @@
 <label>MQTT broker address</label>
 <description>Use this format tcp://192.168.1.2:1883 and be sure to include both the IP and Port number. tcp://localhost:1883 is also valid.
 </description>
-<default>tcp://192.168.1.100:1883</default>             
+<default>tcp://192.168.1.100:1883</default>
 </parameter>
 
 <parameter name="MQTT_USERNAME" type="text" required="false" groupName="MQTT Broker Settings">
@@ -37,7 +37,7 @@
 <description>Enter the User name used to connect to your MQTT broker, or leave blank if none is needed to connect.
 </description>
 </parameter>
-            
+
 <parameter name="MQTT_PASSWORD" type="text" required="false" groupName="MQTT Broker Settings">
 <context>password</context>
 <label>Password for MQTT Broker.</label>
@@ -114,209 +114,206 @@
 <default>12</default>
 </parameter>
 
- 
+
 </config-description>
 </bridge-type>
 
-    <thing-type id="rgb_cct">
-        <supported-bridge-type-refs>
-            <bridge-type-ref id="esp8266Bridge" />
-        </supported-bridge-type-refs>
-        <label>RGB+CW+WW Globe (rgb_cct)</label>         
-        <description>Led globe with full Colour, cool, and warm whites with saturation controls</description>
-        <category>Lightbulb</category> 
-        <channels>
-            <channel id="level" typeId="level"/>
-            <channel id="colourtemperature" typeId="colourtemperature"/>
-            <channel id="colour" typeId="colour"/>
-            <channel id="discomode" typeId="discomode"/>
-            <channel id="bulbmode" typeId="bulbmode"/>
-            <channel id="bulbcommand" typeId="bulbcommand"/>
-            <channel id="sendbulbcommand" typeId="sendbulbcommand"/>       
-        </channels>
-    </thing-type>
-    
-        <thing-type id="fut089">
-        <supported-bridge-type-refs>
-            <bridge-type-ref id="esp8266Bridge" />
-        </supported-bridge-type-refs>
-        <label>RGB+CW+WW Globe controlled via FUT089 remote (fut089)</label>
-        <description>Use this when your remote is the newer 8 group type called FUT089 and your globes are rgb_cct</description>
-        <category>Lightbulb</category> 
-        <channels>
-            <channel id="level" typeId="level"/>
-            <channel id="colourtemperature" typeId="colourtemperature"/>
-            <channel id="colour" typeId="colour"/>
-            <channel id="discomode" typeId="discomode"/>
-            <channel id="bulbmode" typeId="bulbmode"/>
-            <channel id="bulbcommand" typeId="bulbcommand"/>
-            <channel id="sendbulbcommand" typeId="sendbulbcommand"/>       
-        </channels>
-    </thing-type>
-    
-    <thing-type id="fut091">
-        <supported-bridge-type-refs>
-            <bridge-type-ref id="esp8266Bridge" />
-        </supported-bridge-type-refs>
-        <label>Dual White Globe controlled via FUT091 remote (fut091)</label>
-        <description>Use this when your remote is the newer fut091 and your globes are cct</description>
-        <category>Lightbulb</category> 
-        <channels>
-            <channel id="level" typeId="level"/>
-            <channel id="colourtemperature" typeId="colourtemperature"/>   
-        </channels>
-    </thing-type>
-   
-        <thing-type id="cct">
-        <supported-bridge-type-refs>
-            <bridge-type-ref id="esp8266Bridge" />
-        </supported-bridge-type-refs>
-        <label>Dual White Globe(cct)</label>
-        <description>Led globe with both cool and warm white controls</description>
-        <category>Lightbulb</category> 
-        <channels>
-            <channel id="level" typeId="level"/>
-            <channel id="colourtemperature" typeId="colourtemperature"/>
-        </channels>
-    </thing-type>
+	<thing-type id="rgb_cct">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="esp8266Bridge" />
+		</supported-bridge-type-refs>
+		<label>RGB+CW+WW Globe (rgb_cct)</label>
+		<description>Led globe with full Colour, cool, and warm whites with saturation controls</description>
+		<category>Lightbulb</category> 
+		<channels>
+			<channel id="level" typeId="level"/>
+			<channel id="colourtemperature" typeId="colourtemperature"/>
+			<channel id="colour" typeId="colour"/>
+			<channel id="discomode" typeId="discomode"/>
+			<channel id="bulbmode" typeId="bulbmode"/>
+			<channel id="bulbcommand" typeId="bulbcommand"/>
+			<channel id="sendbulbcommand" typeId="sendbulbcommand"/>   
+		</channels>
+	</thing-type>
 
-        <thing-type id="rgbw">
-        <supported-bridge-type-refs>
-            <bridge-type-ref id="esp8266Bridge" />
-        </supported-bridge-type-refs>
-        <label>RGB and White Globe(rgbw)</label>
-        <description>RGB Globe with a fixed white</description>
-        <category>Lightbulb</category> 
-        <channels>
-            <channel id="level" typeId="level"/>
-            <channel id="colour" typeId="colour"/>
-            <channel id="discomode" typeId="discomode"/>
-            <channel id="bulbmode" typeId="bulbmode"/>
-            <channel id="bulbcommand" typeId="bulbcommand"/>
-            <channel id="sendbulbcommand" typeId="sendbulbcommand"/>             
-        </channels>
-    </thing-type>
+	<thing-type id="fut089">
+	<supported-bridge-type-refs>
+	<bridge-type-ref id="esp8266Bridge" />
+	</supported-bridge-type-refs>
+	<label>RGB+CW+WW Globe controlled via FUT089 remote (fut089)</label>
+	<description>Use this when your remote is the newer 8 group type called FUT089 and your globes are rgb_cct</description>
+	<category>Lightbulb</category> 
+	<channels>
+	<channel id="level" typeId="level"/>
+	<channel id="colourtemperature" typeId="colourtemperature"/>
+	<channel id="colour" typeId="colour"/>
+	<channel id="discomode" typeId="discomode"/>
+	<channel id="bulbmode" typeId="bulbmode"/>
+	<channel id="bulbcommand" typeId="bulbcommand"/>
+	<channel id="sendbulbcommand" typeId="sendbulbcommand"/>   
+	</channels>
+	</thing-type>
+
+<thing-type id="fut091">
+<supported-bridge-type-refs>
+<bridge-type-ref id="esp8266Bridge" />
+</supported-bridge-type-refs>
+<label>Dual White Globe controlled via FUT091 remote (fut091)</label>
+<description>Use this when your remote is the newer fut091 and your globes are cct</description>
+<category>Lightbulb</category> 
+<channels>
+<channel id="level" typeId="level"/>
+<channel id="colourtemperature" typeId="colourtemperature"/>   
+</channels>
+</thing-type>
+
+<thing-type id="cct">
+<supported-bridge-type-refs>
+<bridge-type-ref id="esp8266Bridge" />
+</supported-bridge-type-refs>
+<label>Dual White Globe(cct)</label>
+<description>Led globe with both cool and warm white controls</description>
+<category>Lightbulb</category> 
+<channels>
+<channel id="level" typeId="level"/>
+<channel id="colourtemperature" typeId="colourtemperature"/>
+</channels>
+</thing-type>
+
+<thing-type id="rgbw">
+<supported-bridge-type-refs>
+<bridge-type-ref id="esp8266Bridge" />
+</supported-bridge-type-refs>
+<label>RGB and White Globe(rgbw)</label>
+<description>RGB Globe with a fixed white</description>
+<category>Lightbulb</category> 
+<channels>
+<channel id="level" typeId="level"/>
+<channel id="colour" typeId="colour"/>
+<channel id="discomode" typeId="discomode"/>
+<channel id="bulbmode" typeId="bulbmode"/>
+<channel id="bulbcommand" typeId="bulbcommand"/>
+<channel id="sendbulbcommand" typeId="sendbulbcommand"/> 
+</channels>
+</thing-type>
 
 
-        <thing-type id="rgb">
-        <supported-bridge-type-refs>
-            <bridge-type-ref id="esp8266Bridge" />
-        </supported-bridge-type-refs>
-        <label>RGB only Globe(rgb)</label>
-        <description>RGB Globe with no white</description>
-        <category>Lightbulb</category> 
-        <channels>
-            <channel id="level" typeId="level"/>
-            <channel id="colour" typeId="colour"/>
-            <channel id="discomode" typeId="discomode"/>
-            <channel id="bulbmode" typeId="bulbmode"/>
-            <channel id="bulbcommand" typeId="bulbcommand"/>
-            <channel id="sendbulbcommand" typeId="sendbulbcommand"/> 
-        </channels>
-    </thing-type>
-    
-        <channel-type id="level">
-        <item-type>Dimmer</item-type>
-        <label>Level</label>
-        <description>Level changes the brightness of the globe.</description>
-        <category>DimmableLight</category>
-        <tags>
-            <tag>Lighting</tag>
-        </tags>
-        </channel-type>
-      
-        <channel-type id="colourtemperature">
-        <item-type>Dimmer</item-type>
-        <label>Color temperature</label>
-        <description>Change from cool to warm white with this control.</description>
-        <category>DimmableCT</category>
-        </channel-type>
-    
-        <channel-type id="colour">
-        <item-type>Color</item-type>
-        <label>Color</label>
-        <description>Allows you to change the color of the globe.</description>
-        <category>ColorLight</category>
-        <tags>
-            <tag>Lighting</tag>
-        </tags>
-        </channel-type>
+<thing-type id="rgb">
+<supported-bridge-type-refs>
+<bridge-type-ref id="esp8266Bridge" />
+</supported-bridge-type-refs>
+<label>RGB only Globe(rgb)</label>
+<description>RGB Globe with no white</description>
+<category>Lightbulb</category> 
+<channels>
+<channel id="level" typeId="level"/>
+<channel id="colour" typeId="colour"/>
+<channel id="discomode" typeId="discomode"/>
+<channel id="bulbmode" typeId="bulbmode"/>
+<channel id="bulbcommand" typeId="bulbcommand"/>
+<channel id="sendbulbcommand" typeId="sendbulbcommand"/> 
+</channels>
+</thing-type>
 
-        <channel-type id="nightmode">
-        <item-type>Switch</item-type>
-        <label>Nightmode</label>
-        <description>Night mode: Lowest level of light that locks out changes from the remotes.</description>       
-        </channel-type>
-    
-        <channel-type id="saturation" advanced="true">
-        <item-type>Dimmer</item-type>
-        <label>Saturation</label>
-        <description>Saturation is how much white light is added to a pure colour.</description>
-        </channel-type>
-    
-   
-        <channel-type id="bulbcommand">
-        <item-type>String</item-type>
-        <label>Command to send</label>
-        <description>Choose the command to send to the globe then press the button to send it multiple times. Note: Not all globes support all commands.</description>
-        <state>
-            <options>
-                <option value="next_mode">next_mode</option>
-                <option value="previous_mode">previous_mode</option>
-                <option value="mode_speed_up">mode_speed_up</option>
-                <option value="mode_speed_down">mode_speed_down</option>
-                <option value="set_white">set_white</option>
-                <option value="pair">pair</option>
-                <option value="unpair">unpair</option>
-                <option value="level_down">level_down</option>
-                <option value="level_up">level_up</option>
-                <option value="temperature_down">temperature_down</option>
-                <option value="temperature_up">temperature_up</option>
-                <option value="night_mode">night_mode</option>
-                <option value="favourite_white">favourite_white</option>
-            </options>
-        </state>
-        </channel-type>
-        
-        <channel-type id="sendbulbcommand">
-        <item-type>Switch</item-type>
-        <label>Send selected command</label>
-        <description>Send the command selected in the list.</description>       
-        </channel-type>
-        
-        <channel-type id="bulbmode">
-        <item-type>String</item-type>
-        <label>Current bulb mode</label>
-        <description>Displays the mode the bulb is currently in.</description>
-        <state readOnly="true">
-            <options>
-                <option value="white">white</option>
-                <option value="color">color</option>
-                <option value="scene">scene</option>
-                <option value="night">night</option>
-            </options>
-        </state>
-        </channel-type>
-    
-   
-    <channel-type id="discomode">
-        <item-type>Number</item-type>
-        <label>Disco mode</label>
-        <description>Switch to a Disco mode directly by using the number. Not supported by all globe types.</description>
-        <state>
-            <options>
-                <option value="0">Disco 0</option>
-                <option value="1">Disco 1</option>
-                <option value="2">Disco 2</option>
-                <option value="3">Disco 3</option>
-                <option value="4">Disco 4</option>
-                <option value="5">Disco 5</option>
-                <option value="6">Disco 6</option>
-                <option value="7">Disco 7</option>
-                <option value="8">Disco 8</option>
-            </options>
-        </state>
-    </channel-type>
+<channel-type id="level">
+<item-type>Dimmer</item-type>
+<label>Level</label>
+<description>Level changes the brightness of the globe.</description>
+<category>DimmableLight</category>
+<tags>
+<tag>Lighting</tag>
+</tags>
+</channel-type>
 
+<channel-type id="colourtemperature">
+<item-type>Dimmer</item-type>
+<label>Color temperature</label>
+<description>Change from cool to warm white with this control.</description>
+<category>DimmableCT</category>
+</channel-type>
+
+<channel-type id="colour">
+<item-type>Color</item-type>
+<label>Color</label>
+<description>Allows you to change the color of the globe.</description>
+<category>ColorLight</category>
+<tags>
+<tag>Lighting</tag>
+</tags>
+</channel-type>
+
+<channel-type id="nightmode">
+<item-type>Switch</item-type>
+<label>Nightmode</label>
+<description>Night mode: Lowest level of light that locks out changes from the remotes.</description>   
+</channel-type>
+
+<channel-type id="saturation" advanced="true">
+<item-type>Dimmer</item-type>
+<label>Saturation</label>
+<description>Saturation is how much white light is added to a pure colour.</description>
+</channel-type>
+
+<channel-type id="bulbcommand">
+<item-type>String</item-type>
+<label>Command to send</label>
+<description>Choose the command to send to the globe then press the button to send it multiple times. Note: Not all globes support all commands.</description>
+		<state>
+<options>
+<option value="next_mode">next_mode</option>
+<option value="previous_mode">previous_mode</option>
+<option value="mode_speed_up">mode_speed_up</option>
+<option value="mode_speed_down">mode_speed_down</option>
+<option value="set_white">set_white</option>
+<option value="pair">pair</option>
+<option value="unpair">unpair</option>
+<option value="level_down">level_down</option>
+<option value="level_up">level_up</option>
+<option value="temperature_down">temperature_down</option>
+<option value="temperature_up">temperature_up</option>
+<option value="night_mode">night_mode</option>
+<option value="favourite_white">favourite_white</option>
+</options>
+</state>
+</channel-type>
+
+<channel-type id="sendbulbcommand">
+<item-type>Switch</item-type>
+<label>Send selected command</label>
+<description>Send the command selected in the list.</description>   
+</channel-type>
+
+<channel-type id="bulbmode">
+<item-type>String</item-type>
+<label>Current bulb mode</label>
+<description>Displays the mode the bulb is currently in.</description>
+<state readOnly="true">
+<options>
+<option value="white">white</option>
+<option value="color">color</option>
+<option value="scene">scene</option>
+<option value="night">night</option>
+</options>
+</state>
+</channel-type>
+
+<channel-type id="discomode">
+<item-type>Number</item-type>
+<label>Disco mode</label>
+<description>Switch to a Disco mode directly by using the number. Not supported by all globe types.</description>
+<state>
+<options>
+<option value="0">Disco 0</option>
+<option value="1">Disco 1</option>
+<option value="2">Disco 2</option>
+<option value="3">Disco 3</option>
+<option value="4">Disco 4</option>
+<option value="5">Disco 5</option>
+<option value="6">Disco 6</option>
+<option value="7">Disco 7</option>
+<option value="8">Disco 8</option>
+</options>
+</state>
+</channel-type>
 
 </thing:thing-descriptions>

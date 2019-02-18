@@ -92,10 +92,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
 
         String topic = "milight/commands/" + remotesIDCode + "/" + globeType + "/" + remotesGroupID;
 
-        switch (channelUID.getId())
-
-        {
-
+        switch (channelUID.getId()) {
             case CHANNEL_LEVEL:
 
                 if ("0".equals(command.toString()) || "OFF".equals(command.toString())) {
@@ -135,7 +132,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 break;
 
             case CHANNEL_BULB_MODE:
-                logger.debug("bulb mode is {}", command.toString());
+                // logger.debug("bulb mode is {}", command.toString());
                 bulbMode = command.toString();
                 break;
 

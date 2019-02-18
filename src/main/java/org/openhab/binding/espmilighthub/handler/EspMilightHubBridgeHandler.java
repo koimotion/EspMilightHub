@@ -165,8 +165,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                 return;
             } else {
                 iBulbLevel = Math.round(Float.valueOf(bulbLevel));
-                logger.debug("iBulbLevel\t={}", iBulbLevel);
-                // updateState(new ChannelUID(channelPrefix + CHANNEL_LEVEL), OnOffType.valueOf("ON"));
+                // logger.debug("iBulbLevel\t={}", iBulbLevel);
                 updateState(new ChannelUID(channelPrefix + CHANNEL_LEVEL), new PercentType(iBulbLevel));
             }
 
@@ -199,9 +198,9 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             postCommand(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("color"));
 
             String bulbHue = resolveJSON(messageJSON, "\"hue\":", 3);
-            logger.trace("bulbHue\t={}", bulbHue);
+            // logger.trace("bulbHue\t={}", bulbHue);
             String bulbSaturation = resolveJSON(messageJSON, "\"saturation\":", 3);
-            logger.trace("bulbSaturation\t={}", bulbSaturation);
+            // logger.trace("bulbSaturation\t={}", bulbSaturation);
 
             if ("".equals(bulbHue)) {
                 logger.warn("Milight MQTT message came in as being a colour mode, but was missing a HUE value.");
@@ -412,9 +411,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     sendQueuedMQTTTimerJob = null;
                     return;
                 }
-            } // end
-              // of
-              // isConnected
+            }
         }
     };
 
@@ -570,7 +567,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             if (thing.getStatus() == ThingStatus.ONLINE) {
                 firstConnectionJob.cancel(false);
                 firstConnectionJob = null;
-                // This delays the retained messages by 30 seconds to allow the handler to start.
+                // This delays the retained messages by 30 seconds for thing to come ONLINE.
                 subscribeToMQTT();
             } else {
                 if (connectMQTT(false)) {// connect to get a full list of globe states//
@@ -588,7 +585,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public void initialize() {
         logger.debug("Initializing Bridge handler.");
         bridgeConfig = getThing().getConfiguration();
-        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 15, 30, TimeUnit.SECONDS);
+        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 30, 30, TimeUnit.SECONDS);
     }
 
     @Override
