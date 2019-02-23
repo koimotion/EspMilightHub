@@ -73,11 +73,10 @@ public class EspMilightHubHandler extends BaseThingHandler {
 
     @Override
     public void handleUpdate(ChannelUID channelUID, State newState) {
-        switch (channelUID.getId()) {
-            case CHANNEL_BULB_MODE:
-                bulbMode = newState.toString();
-                break;
-        } // end switch
+        if ("bulbmode".contains(channelUID.getId())) {
+            bulbMode = newState.toString();
+            logger.debug("Bulb Mode has changed to {}", bulbMode);
+        }
     }
 
     @Override
@@ -121,8 +120,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + command.toString() + "}");
 
                 if (globeType.equals("rgb_cct") || globeType.equals("fut089")) {
-
-                    if (bridgeHandler.getAutoCTempValue() != 0 && bulbMode.equals("white")) {
+                    if (bridgeHandler.getAutoCTempValue() != 0 && "white".contentEquals(bulbMode)) {
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"color_temp\":"
                                 + autoColourTemp(Integer.parseInt(command.toString())) + "}");
                     }
@@ -132,8 +130,8 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 break;
 
             case CHANNEL_BULB_MODE:
-                // logger.debug("bulb mode is {}", command.toString());
                 bulbMode = command.toString();
+                logger.debug("Bulb Mode has changed to {}", bulbMode);
                 break;
 
             case CHANNEL_COLOURTEMP:

@@ -169,14 +169,13 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
         String bulbMode = resolveJSON(messageJSON, "\"bulb_mode\":\"", 5);
         if ("white".equals(bulbMode)) {
-
             if (!"cct".equals(globeType) && !"fut091".equals(globeType)) {
+                // This is not a double up and is used to update the mode in the espmilighthubhandler
+                // Halogen dimming needs CHANNEL_BULB_MODE linked for the feature to work!
+                // postCommand(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_DISCO_MODE), new DecimalType("-1"));
-                // This is not a double up and is used to update the mode in the espmilighthubhandler
-                postCommand(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
             }
-
             String bulbCTemp = resolveJSON(messageJSON, "\"color_temp\":", 3);
             if (!bulbCTemp.isEmpty()) {
                 // logger.trace("bulbCTemp\t={}", bulbCTemp);
@@ -305,6 +304,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public void subscribeToMQTT() {
         try {
             client.subscribe("milight/states/#", 1);
+            logger.info("Sucessfully subscribed to milight/states/#");
         } catch (MqttException e) {
             logger.error("Error: Could not subscribe to 'milight/states/#' cause is:{}", e);
         }
@@ -312,7 +312,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     @Override
     public void connectComplete(boolean reconnect, java.lang.String serverURI) {
-        logger.info("MQTT sucessfully connected");
+        logger.info("Sucessfully connected to the MQTT broker.");
         updateStatus(ThingStatus.ONLINE);
     }
 
@@ -577,7 +577,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     @Override
     public void dispose() {
-        logger.info("Bridge dispose() called, about to disconnect the MQTT broker.");
+        logger.info("Bridge dispose() called, about to disconnect from the MQTT broker.");
         disconnectMQTT();
 
         if (sendQueuedMQTTTimerJob != null) {
