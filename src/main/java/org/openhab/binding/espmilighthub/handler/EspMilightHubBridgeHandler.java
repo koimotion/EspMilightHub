@@ -25,8 +25,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.security.auth.login.Configuration;
-
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -34,7 +33,6 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.logging.LoggerFactory;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -49,6 +47,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link EspMilightHubBridgeHandler} is responsible for handling the bridge commands and all MQTT comms, which are
@@ -83,12 +83,11 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public ReentrantLock lockInComming = new ReentrantLock();
 
     private MqttClient client;
-    private Configuration bridgeConfig;
+    private org.eclipse.smarthome.config.core.@NonNull Configuration bridgeConfig;
     private boolean increaseChoke = false;
     EspMilightHubHandler childHandler;
 
     static private String resolveJSON(String messageJSON, String jsonPath, int resultMaxLength) {
-
         String result = "";
         int index = 0;
         index = messageJSON.indexOf(jsonPath);
@@ -96,12 +95,10 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         {
             if ((index + jsonPath.length() + resultMaxLength) > messageJSON.length()) {
                 result = (messageJSON.substring(index + jsonPath.length(), messageJSON.length()));
-
             } else {
                 result = (messageJSON.substring(index + jsonPath.length(),
                         index + jsonPath.length() + resultMaxLength));
             }
-
             index = result.indexOf(','); // need to be careful, only matches first bad char found//
             if (index == -1)// , not found so make second check
             {
@@ -119,7 +116,6 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     return result.substring(0, index); // Strip off the " as it is a bad char, careful as } may still be
                                                        // in string.
                 }
-
             } else { // Found a "," , now we need to check for " in case both are in string.
 
                 result = result.substring(0, index); // Strip off any left over char.
@@ -132,8 +128,6 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                 }
             }
         }
-
-        // logger.debug("Could not find {} in the incomming MQTT message which was: {}", jsonPath, messageJSON);
         return "";
     }
 
@@ -146,15 +140,15 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         String bulbState = resolveJSON(messageJSON, "\"state\":\"", 3);
         String bulbLevel = resolveJSON(messageJSON, "\"level\":", 3);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Processing new incoming MQTT message to update Openhab's controls.");
-            logger.debug("Message\t={}", messageJSON);
-            logger.debug("globeType\t={}", globeType);
-            logger.debug("remoteCode\t={}", remoteCode);
-            logger.debug("remoteGroupID\t={}", remoteGroupID);
-            logger.debug("Chan Prefix\t={}", channelPrefix);
-            logger.debug("bulbState\t={}", bulbState);
-            logger.debug("bulbLevel\t={}", bulbLevel);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Processing new incoming MQTT message to update Openhab's controls.");
+            logger.trace("Message\t={}", messageJSON);
+            logger.trace("globeType\t={}", globeType);
+            logger.trace("remoteCode\t={}", remoteCode);
+            logger.trace("remoteGroupID\t={}", remoteGroupID);
+            logger.trace("Chan Prefix\t={}", channelPrefix);
+            logger.trace("bulbState\t={}", bulbState);
+            logger.trace("bulbLevel\t={}", bulbLevel);
         }
 
         if (!bulbLevel.isEmpty()) {
@@ -165,7 +159,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                 return;
             } else {
                 iBulbLevel = Math.round(Float.valueOf(bulbLevel));
-                // logger.debug("iBulbLevel\t={}", iBulbLevel);
+                // logger.trace("iBulbLevel\t={}", iBulbLevel);
                 updateState(new ChannelUID(channelPrefix + CHANNEL_LEVEL), new PercentType(iBulbLevel));
             }
 
@@ -185,10 +179,10 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
             String bulbCTemp = resolveJSON(messageJSON, "\"color_temp\":", 3);
             if (!bulbCTemp.isEmpty()) {
-                // logger.debug("bulbCTemp\t={}", bulbCTemp);
+                // logger.trace("bulbCTemp\t={}", bulbCTemp);
                 int ibulbCTemp = (int) Math.round(((Float.valueOf(bulbCTemp) / 2.17) - 171) * -1);
                 updateState(new ChannelUID(channelPrefix + CHANNEL_COLOURTEMP), new PercentType(ibulbCTemp));
-                // logger.debug("CTemp Int\t={}", ibulbCTemp);
+                // logger.trace("CTemp Int\t={}", ibulbCTemp);
             }
 
         } else if ("color".equals(bulbMode)) {
@@ -219,17 +213,15 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             }
 
             String bulbDiscoMode = resolveJSON(messageJSON, "\"mode\":", 1);
-            // logger.debug("bulbDiscoMode=\t{}", bulbDiscoMode);
+            // logger.trace("bulbDiscoMode=\t{}", bulbDiscoMode);
 
             if ("".equals(bulbDiscoMode)) {
                 ;
             } else {
-
                 updateState(new ChannelUID(channelPrefix + CHANNEL_DISCO_MODE),
                         new DecimalType(bulbDiscoMode.toString()));
             }
         } else if ("night".equals(bulbMode)) {
-
             if (!"cct".equals(globeType) && !"fut091".equals(globeType)) {
                 postCommand(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("night"));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("night"));
@@ -243,13 +235,10 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     Runnable pollingIncommingQueuedMQTT = new Runnable() {
         @Override
         public void run() {
-
             if (thing.getStatus() == ThingStatus.OFFLINE) {
                 // keeps the queue ready until it comes back online to process//
                 return;
-            }
-
-            else if (!fifoIncommingTopic.isEmpty()) {
+            } else if (!fifoIncommingTopic.isEmpty()) {
                 lockInComming.lock();
                 String topic, payload;
                 try {
@@ -259,13 +248,11 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     lockInComming.unlock();
                 }
                 String cutTopic = topic.replace("milight/states/", "");
-
                 int index = cutTopic.indexOf("/");
                 if (index != -1) // -1 means "not found"
                 {
                     String remoteCode = (cutTopic.substring(0, index)); // Store the remote code for use later
                     cutTopic = topic.replace("milight/states/" + remoteCode + "/", "");
-
                     index = cutTopic.indexOf("/");
                     if (index != -1) // -1 means "not found"
                     {
@@ -343,7 +330,6 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     "espMilightHub:" + this.getThing().getUID().getId().toString(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(useCleanSession);
-
             if (bridgeConfig.get(CONFIG_MQTT_USER_NAME) != null) {
                 options.setUserName(bridgeConfig.get(CONFIG_MQTT_USER_NAME).toString());
                 confirmedUser = bridgeConfig.get(CONFIG_MQTT_USER_NAME).toString();
@@ -355,8 +341,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             options.setMaxInflight(30); // up to 30 messages at once can be sent without a token back
             options.setAutomaticReconnect(true);
             options.setKeepAliveInterval(15);
-            // options.setConnectionTimeout(15); // connection must be made in under 15 seconds
-
+            options.setConnectionTimeout(20); // connection must be made in under 20 seconds
             client.setCallback(this);
             client.connect(options);
         } catch (MqttException e) {
@@ -364,12 +349,12 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             return false;
         }
         confirmedAddress = bridgeConfig.get(CONFIG_MQTT_ADDRESS).toString();
+        updateStatus(ThingStatus.ONLINE);
         return true;
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
-        // logger.debug("MQTT broker replied an outgoing command was recieved:{}", token);
     }
 
     private void sendMQTT(String topic, String payload) {
@@ -395,18 +380,17 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     lockOutGoing.lock();
                     try {
                         sendMQTT(fifoOutgoingTopic.removeFirst(), fifoOutgoingPayload.removeFirst());
-                        logger.debug("MQTT message just sent, there are now {} more messages in the queue",
+                        logger.trace("MQTT message just sent, there are now {} more messages in the queue",
                                 fifoOutgoingTopic.size());
                     } catch (NoSuchElementException e) {
                         logger.warn(
-                                "********************* outgoing queue *CATCH* Triggered, wiping the outgoing FIFO buffer clean ********************");
+                                "!!! Outgoing MQTT queue *CATCH* Triggered. Wiping the outgoing FIFO buffer clean !!!");
                         fifoOutgoingTopic.clear();
                         fifoOutgoingPayload.clear();
                     } finally {
                         lockOutGoing.unlock();
                     }
                 } else {
-                    logger.debug("MQTT sending queue is getting cancelled");
                     sendQueuedMQTTTimerJob.cancel(true);
                     sendQueuedMQTTTimerJob = null;
                     return;
@@ -476,7 +460,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         if (sendQueuedMQTTTimerJob == null) {
             sendQueuedMQTTTimerJob = schedulerOut.scheduleWithFixedDelay(pollingSendQueuedMQTT, 0,
                     Integer.parseInt(bridgeConfig.get(CONFIG_DELAY_BETWEEN_MQTT).toString()), TimeUnit.MILLISECONDS);
-            logger.debug("started timer because it was null.");
+            logger.debug("Started timer because it was null.");
         }
     }
 
@@ -510,6 +494,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     public EspMilightHubBridgeHandler(Bridge thing) {
         super(thing);
+        bridgeConfig = getThing().getConfiguration();
     }
 
     @Override
@@ -569,11 +554,11 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             if (thing.getStatus() == ThingStatus.ONLINE) {
                 firstConnectionJob.cancel(false);
                 firstConnectionJob = null;
-                // This delays the retained messages by 30 seconds for thing to come ONLINE.
+                // This delays the retained messages by 30 seconds to allow for thing to come ONLINE.
                 subscribeToMQTT();
             } else {
+                logger.debug("pollFirstConnection() is trying to connect to your MQTT broker now.");
                 if (connectMQTT(false)) {// connect to get a full list of globe states//
-                    updateStatus(ThingStatus.ONLINE);
                     recordBridgeID();
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
@@ -585,14 +570,14 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     @Override
     public void initialize() {
-        logger.debug("Initializing Bridge handler.");
+        logger.info("Initializing the EspMilightHub opensource bridge.");
         bridgeConfig = getThing().getConfiguration();
-        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 30, 30, TimeUnit.SECONDS);
+        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 0, 30, TimeUnit.SECONDS);
     }
 
     @Override
     public void dispose() {
-        logger.debug("Bridge dispose called, about to disconnect the MQTT broker.");
+        logger.info("Bridge dispose() called, about to disconnect the MQTT broker.");
         disconnectMQTT();
 
         if (sendQueuedMQTTTimerJob != null) {
@@ -607,9 +592,5 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             firstConnectionJob.cancel(true);
             firstConnectionJob = null;
         }
-    }
-
-    public void run() {
-        logger.debug("Starting bridge RUN method");
     }
 }
