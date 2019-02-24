@@ -81,11 +81,10 @@ public class EspMilightHubHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-
         if (command.toString() == "REFRESH") {
             logger.trace("'REFRESH' command has been called for:{}", channelUID);
-            // This will cause all retained messages to be resent. Disabled for now.
-            // bridgeHandler.subscribeToMQTT();
+            // This will cause all retained messages to be resent.
+            EspMilightHubBridgeHandler.triggerRefresh = true;
             return;
         }
 

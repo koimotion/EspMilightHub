@@ -51,13 +51,9 @@ public class EspMilightHubDiscoveryService extends AbstractDiscoveryService {
     }
 
     private void newThingFound(String globeType, String remoteGroupID, String remoteCode) {
-
-        logger.info("A Thing which may already exsist has been found:{}:{}:{}", globeType, remoteCode, remoteGroupID);
-
         ThingTypeUID thingtypeuid = new ThingTypeUID(BINDING_ID, globeType);
         ThingUID thingUID = new ThingUID(thingtypeuid, EspMilightHubBridgeHandler.confirmedBridgeUID,
                 remoteCode + remoteGroupID);
-
         DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID)
                 .withBridge(EspMilightHubBridgeHandler.confirmedBridgeUID)
                 .withLabel("Milight " + globeType + " Globe :" + remoteCode + remoteGroupID).build();
@@ -119,7 +115,6 @@ public class EspMilightHubDiscoveryService extends AbstractDiscoveryService {
 
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
-
                 }
             });
 

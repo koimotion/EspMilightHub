@@ -60,15 +60,15 @@ import org.slf4j.LoggerFactory;
 public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements MqttCallbackExtended {
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
-    private final ScheduledExecutorService firstConnection = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> firstConnectionJob = null;
+    private final ScheduledExecutorService checkConnection = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> checkConnectionJob = null;
     private final Logger logger = LoggerFactory.getLogger(EspMilightHubBridgeHandler.class);
 
     public static String confirmedAddress = "empty";
     public static String confirmedUser = "empty";
     public static String confirmedPassword = "empty";
     public static ThingUID confirmedBridgeUID;
-    public static int readyToRefresh = 0;
+    public static boolean triggerRefresh = true;
 
     private final ScheduledExecutorService schedulerOut = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> sendQueuedMQTTTimerJob = null;
@@ -172,7 +172,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             if (!"cct".equals(globeType) && !"fut091".equals(globeType)) {
                 // This is not a double up and is used to update the mode in the espmilighthubhandler
                 // Halogen dimming needs CHANNEL_BULB_MODE linked for the feature to work!
-                // postCommand(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
+                postCommand(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_DISCO_MODE), new DecimalType("-1"));
             }
@@ -547,15 +547,14 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         confirmedBridgeUID = this.getThing().getUID();
     }
 
-    Runnable pollFirstConnection = new Runnable() {
+    Runnable pollConnection = new Runnable() {
         @Override
         public void run() {
-            logger.debug("pollFirstConnection() is running.");
             if (thing.getStatus() == ThingStatus.ONLINE) {
-                firstConnectionJob.cancel(false);
-                firstConnectionJob = null;
-                // This delays the retained messages by 30 seconds to allow for thing to come ONLINE.
-                subscribeToMQTT();
+                if (triggerRefresh) {
+                    triggerRefresh = false;
+                    subscribeToMQTT();
+                }
             } else {
                 logger.debug("pollFirstConnection() is trying to connect to your MQTT broker now.");
                 if (connectMQTT(false)) {// connect to get a full list of globe states//
@@ -570,14 +569,14 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     @Override
     public void initialize() {
-        logger.info("Initializing the EspMilightHub opensource bridge.");
+        logger.debug("Initializing the EspMilightHub opensource bridge.");
         bridgeConfig = getThing().getConfiguration();
-        firstConnectionJob = firstConnection.scheduleWithFixedDelay(pollFirstConnection, 0, 30, TimeUnit.SECONDS);
+        checkConnectionJob = checkConnection.scheduleWithFixedDelay(pollConnection, 0, 10, TimeUnit.SECONDS);
     }
 
     @Override
     public void dispose() {
-        logger.info("Bridge dispose() called, about to disconnect from the MQTT broker.");
+        logger.info("Bridge dispose() called, disconnecting from the MQTT broker.");
         disconnectMQTT();
 
         if (sendQueuedMQTTTimerJob != null) {
@@ -588,9 +587,9 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             processIncommingMQTTTimerJob.cancel(true);
             processIncommingMQTTTimerJob = null;
         }
-        if (firstConnectionJob != null) {
-            firstConnectionJob.cancel(true);
-            firstConnectionJob = null;
+        if (checkConnectionJob != null) {
+            checkConnectionJob.cancel(true);
+            checkConnectionJob = null;
         }
     }
 }
