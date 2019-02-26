@@ -267,9 +267,16 @@ public class EspMilightHubHandler extends BaseThingHandler {
             globeLocation = this.getThing().getUID().getId();// eg 0x014
             remotesGroupID = globeLocation.substring(globeLocation.length() - 1, globeLocation.length());// eg 4
             remotesIDCode = globeLocation.substring(0, globeLocation.length() - 1);// eg 0x01
+            // Need to remove the lowercase x from 0x12AB in case it contains all numbers
+            String caseCheck = globeLocation.substring(2, globeLocation.length() - 1);
+            if (!caseCheck.equals(caseCheck.toUpperCase())) {
+
+                logger.error(
+                        "The milight globe {}{} is using lowercase for the remote code when the hub needs UPPERCASE",
+                        remotesIDCode, remotesGroupID);
+            }
 
             config = getThing().getConfiguration();
-
             if (getBridge().getHandler() != null) {
 
                 bridgeHandler = (EspMilightHubBridgeHandler) getBridge().getHandler();
