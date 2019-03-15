@@ -38,6 +38,8 @@ You then need to get MQTT running as this method uses the faster and lightweight
 The zip files have a date code in the format DD-MM-YYYY for when the version was built.
 
 + Open the zip and place the JAR file into your Openhab 'addons' folder. You do not need to install the mqtt binding as this binding is fully standalone and uses the java Paho library. You still require a MQTT broker reachable on your network, mosquitto is one example of a broker and can be installed with the Openhabian config tool, or you can use PaperUI to install the embedded MQTT broker which is found under MISC and not bindings. Do not install more than 1 broker as they can conflict.
+https://www.openhab.org/addons/integrations/mqttembeddedbroker/
+
 
 + Setup the firmware of the ESP8266 using the below instructions.
 
