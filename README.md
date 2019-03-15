@@ -1,10 +1,10 @@
 # <bindingName> Binding
 
-This is a new openhab 2.x binding that allows a single opensource esp8266 bridge (created by Chris Mullins aka Sidoh) to automatically find and add milight globes into OpenHab2. The first question Openhab 2 users may have is “Why another binding when one already exists?”, The short answers to this are the new OPENSOURCE bridge allows:
+This is a new Openhab 2.x binding that allows a single opensource esp8266 bridge (created by Chris Mullins aka Sidoh) to automatically find and add Milight globes into OpenHab. The first question Openhab 2 users may have is “Why another binding when one already exists?”, The short answer/s to this are that the new OPENSOURCE bridge allows:
 
-+ Almost unlimited groups so you can have individual control over an entire house of milight globes without multiple OEM bridges. A single bridge uses less power for one of many advantages of having only 1 hub/bridge.
++ Almost unlimited groups so you can have individual control over an entire house of Milight globes without multiple bridges. A single bridge uses less power for one of many advantages.
 
-+ If using the milight remotes to control the globes, this binding will update the openhab controls the moment a key is pressed on the remote.
++ If using the Milight remotes to control the globes, this binding will update the Openhab controls the moment a key is pressed on the remote.
 
 + Auto scan and adding of the globes via paper UI.
 
@@ -13,12 +13,31 @@ This is a new openhab 2.x binding that allows a single opensource esp8266 bridge
 + Many other reasons besides just being opensource and hence can get firmware updates to support new globes and wifi KRACK patches.
 
 
+## Steps to getting the hardware esp8266 Milight Hub working
+
+In depth details on how to build and what the bridge is can be found here:
+http://blog.christophermullins.com/2017/02/11/milight-wifi-gateway-emulator-on-an-esp8266
+
+A quick overview of the steps to get the hardware going are:
+
+Connect a nodemcu/esp8266 to your computer via a USB cable.
+Download the latest BIN file from here https://github.com/sidoh/esp8266_milight_hub/releases
+Download esp8266flasher if you are on windows https://github.com/nodemcu/nodemcu-flasher
+Check the blog above on more info on how to do it from mac or linux.
+Open the flasher tool and make sure the flash size is 4mb or whatever your esp8266 board has.
+Flash the bin and then press the reset button on the nodemcu board when complete.
+Connect to the wifi access point of the esp directly and setup to connect to your network. Blog has more info.
+Login by using the IP address of the esp8266 in a web browser and the control panel will show up.
+Connect 7 wires between the two ready made PCBs as shown in the above blog.
+You then need to get MQTT running as this method uses the faster and lightweight MQTT protcol and not UDP.
+
+
 ## Steps to getting this binding running
 
 + Download the latest binding in a JAR format from http://www.pcmus.com/openhab/
 The zip files have a date code in the format DD-MM-YYYY for when the version was built.
 
-+ Open the zip and place the JAR file into your Openhab 'addons' folder. You do not need to have any mqtt bindings installed as this binding is fully standalone and uses the java Paho library. This does not mean you do not need a MQTT broker somewhere reachable on your network.
++ Open the zip and place the JAR file into your Openhab 'addons' folder. You do not need to install the mqtt binding as this binding is fully standalone and uses the java Paho library. You still require a MQTT broker reachable on your network, mosquitto is one example of a broker and can be installed with the Openhabian config tool, or you can use PaperUI to install the embedded MQTT broker which is found under MISC and not bindings. Do not install more than 1 broker as they can conflict.
 
 + Setup the firmware of the ESP8266 using the below instructions.
 
@@ -26,7 +45,7 @@ The zip files have a date code in the format DD-MM-YYYY for when the version was
 
 ## Setting up the esp8266 firmware
 
-Enter the control panel for the ESP8266 by using any browser and entering the IP address. Follow the blog http://blog.christophermullins.com/2017/02/11/milight-wifi-gateway-emulator-on-an-esp8266/248  on how to setup the ESP to connect to your WIFI.
+Enter the control panel for the ESP8266 by using any browser and entering the IP address. Follow the blog http://blog.christophermullins.com/2017/02/11/milight-wifi-gateway-emulator-on-an-esp8266  on how to setup the ESP to connect to your WIFI.
 
 Set the following options in the firmware. Click on SETTINGS>MQTT>:
 
@@ -57,7 +76,7 @@ In the box called ***group_state_fields*** you need to untick "computed color", 
 + bulb_mode
 
 
-Fill in the MQTT broker fields then click ***save*** down the bottom and now when you use a milight remote control you will see MQTT topics being created that should include LEVEL and HSB. If you see brightness and not level, then go back and read the above setup steps carefully.
+Fill in the MQTT broker fields then click ***save*** down the bottom and now when you use a Milight remote control you will see MQTT topics being created that should include LEVEL and HSB. If you see brightness and not level, then go back and read the above setup steps more carefully.
 
 You can use this linux command to watch all MQTT topics from milight:
 
@@ -227,11 +246,15 @@ mosquitto_sub -u usernamehere -P passwordhere -p 1883 -v -t 'milight/#'
 ```
 
 
-To see more detailed logs you can do this in the openhab console:
+To see more detailed logs you can do this in the Openhab console:
 
 ```
 log:set TRACE org.openhab.binding.espmilighthub
 ```
+
+To learn how to use the Karaf console please visit this link.
+https://www.openhab.org/docs/administration/console.html
+
 
 change TRACE to INFO to go back to normal default output in your logs.
 Whilst still in the console you can type
