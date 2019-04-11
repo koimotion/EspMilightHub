@@ -20,16 +20,18 @@ http://blog.christophermullins.com/2017/02/11/milight-wifi-gateway-emulator-on-a
 
 A quick overview of the steps to get the hardware going are:
 
-Connect a nodemcu/esp8266 to your computer via a USB cable.
-Download the latest BIN file from here https://github.com/sidoh/esp8266_milight_hub/releases
-Download esp8266flasher if you are on windows https://github.com/nodemcu/nodemcu-flasher
++ Connect a nodemcu/esp8266 to your computer via a USB cable.
++ Download the latest BIN file from here 
+<https://github.com/sidoh/esp8266_milight_hub/releases>
++ Download esp8266flasher if you are on windows 
+<https://github.com/nodemcu/nodemcu-flasher>
 Check the blog above on more info on how to do it from mac or linux.
-Open the flasher tool and make sure the flash size is 4mb or whatever your esp8266 board has.
-Flash the bin and then press the reset button on the nodemcu board when complete.
-Connect to the wifi access point of the esp directly and setup to connect to your network. Blog has more info.
-Login by using the IP address of the esp8266 in a web browser and the control panel will show up.
-Connect 7 wires between the two ready made PCBs as shown in the above blog.
-You then need to get MQTT running as this method uses the faster and lightweight MQTT protcol and not UDP.
++ Open the flasher tool and make sure the flash size is 4mb or whatever your esp8266 board has.
++ Flash the bin and then press the reset button on the nodemcu board when complete.
++ Connect to the wifi access point of the esp directly and setup to connect to your network. Blog has more info.
++ Login by using the IP address of the esp8266 in a web browser and the control panel will show up.
++ Connect 7 wires between the two ready made PCBs as shown in the above blog.
++ Setup a MQTT broker as this method uses the faster and lightweight MQTT protocol and not UDP.
 
 
 ## Steps to getting this binding running

@@ -9,8 +9,8 @@
 
 <config-description>
 
-<parameter-group name="MQTT Broker Settings">
-<label>MQTT Broker Settings</label>
+<parameter-group name="Main Settings">
+<label>Main Settings</label>
 <advanced>false</advanced>
 </parameter-group>
 
@@ -24,23 +24,29 @@
 <advanced>false</advanced>
 </parameter-group>
 
-<parameter name="ADDR" type="text" required="true" groupName="MQTT Broker Settings">
+<parameter name="ADDR" type="text" required="true" groupName="Main Settings">
 <label>MQTT broker address</label>
 <description>It is best to use localhost if the broker is located on the same computer as Openhab. Otherwise use this format tcp://192.168.1.2:1883
 </description>
 <default>tcp://localhost:1883</default>
 </parameter>
 
-<parameter name="MQTT_USERNAME" type="text" required="false" groupName="MQTT Broker Settings">
+<parameter name="MQTT_USERNAME" type="text" required="false" groupName="Main Settings">
 <label>User name for MQTT broker.</label>
 <description>Enter the User name used to connect to your MQTT broker, or leave blank if none is needed to connect.
 </description>
 </parameter>
 
-<parameter name="MQTT_PASSWORD" type="text" required="false" groupName="MQTT Broker Settings">
+<parameter name="MQTT_PASSWORD" type="text" required="false" groupName="Main Settings">
 <context>password</context>
 <label>Password for MQTT Broker.</label>
 <description>Enter Password for your MQTT Broker, or leave blank if none is needed to connect.
+</description>
+</parameter>
+
+<parameter name="HUB_IP" type="text" required="false" groupName="Main Settings">
+<label>HUB_IP</label>
+<description>Enter the IP of the esp8266 so the binding can help setup the Hubs settings for you.
 </description>
 </parameter>
 
@@ -78,14 +84,14 @@
 </description>
 </parameter>
 
-<parameter name="DELAY_BETWEEN_MQTT" type="integer" required="true" min="5" max="1000" groupName="MQTT Broker Settings">
+<parameter name="DELAY_BETWEEN_MQTT" type="integer" required="true" min="5" max="1000" groupName="Main Settings">
 <label>Delay in milliseconds between all outgoing MQTT messages.</label>
 <description>Use this to prevent messages building up in the esp8266 buffers if the hub can not transmit to the globes fast enough. TIP: Play with 'packet_repeats' in esp8266 control panel as lower values speed up transmit times.
 </description>
 <default>140</default>
 </parameter>
 
-<parameter name="DELAY_BETWEEN_SAME_GLOBE" type="integer" required="true" min="5" max="1000" groupName="MQTT Broker Settings">
+<parameter name="DELAY_BETWEEN_SAME_GLOBE" type="integer" required="true" min="5" max="1000" groupName="Main Settings">
 <label>Delay in milliseconds between multiple outgoing MQTT messages heading to the same globe in a row.</label>
 <description>This feature will create less messages per second to the same globe when dragging a finger around a color item.
 </description>
@@ -195,7 +201,6 @@
 <channel id="sendbulbcommand" typeId="sendbulbcommand"/> 
 </channels>
 </thing-type>
-
 
 <thing-type id="rgb">
 <supported-bridge-type-refs>

@@ -15,6 +15,11 @@ package org.openhab.binding.espmilighthub.handler;
 
 import static org.openhab.binding.espmilighthub.EspMilightHubBindingConstants.*;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -25,7 +30,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -34,6 +39,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -83,7 +89,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public ReentrantLock lockInComming = new ReentrantLock();
 
     private MqttClient client;
-    private org.eclipse.smarthome.config.core.@NonNull Configuration bridgeConfig;
+    private Configuration bridgeConfig;
     private boolean increaseChoke = false;
     EspMilightHubHandler childHandler;
 
@@ -248,12 +254,16 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                 }
                 String cutTopic = topic.replace("milight/states/", "");
                 int index = cutTopic.indexOf("/");
-                if (index != -1) // -1 means "not found"
+                if (index != -1) // -1
+                                 // means
+                                 // "not
+                                 // found"
                 {
                     String remoteCode = (cutTopic.substring(0, index)); // Store the remote code for use later
                     cutTopic = topic.replace("milight/states/" + remoteCode + "/", "");
                     index = cutTopic.indexOf("/");
-                    if (index != -1) // -1 means "not found"
+                    if (index != -1) // -1 means
+                                     // "not found"
                     {
                         String globeType = (cutTopic.substring(0, index));
                         String remoteGroupID = (cutTopic.substring(++index, ++index));
@@ -494,7 +504,6 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     public EspMilightHubBridgeHandler(Bridge thing) {
         super(thing);
-        bridgeConfig = getThing().getConfiguration();
     }
 
     @Override
@@ -557,7 +566,15 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                 }
             } else {
                 logger.debug("pollFirstConnection() is trying to connect to your MQTT broker now.");
-                if (connectMQTT(false)) {// connect to get a full list of globe states//
+                if (connectMQTT(false)) {// connect
+                                         // to
+                                         // get
+                                         // a
+                                         // full
+                                         // list
+                                         // of
+                                         // globe
+                                         // states//
                     recordBridgeID();
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
@@ -567,10 +584,57 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         }
     };
 
+    private String getHttp(String urlFilePath) throws IOException {
+
+        String urlString = "http://" + bridgeConfig.get(CONFIG_HUB_IP) + urlFilePath;
+        URL url;
+        url = new URL(urlString);
+        URLConnection urlConnection = url.openConnection();
+        urlConnection.setConnectTimeout(3000);
+        try {
+            String response = IOUtils.toString(urlConnection.getInputStream());
+            // logger.info("response = {}", response);
+            return response;
+        } finally {
+            IOUtils.closeQuietly(urlConnection.getInputStream());
+        }
+    }
+
+    private void putHttp(String urlFilePath, String content) {
+        String urlString = "http://" + bridgeConfig.get(CONFIG_HUB_IP) + urlFilePath;
+        URL url;
+        try {
+            url = new URL(urlString);
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+            httpConnection.setConnectTimeout(3000);
+            httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("PUT");
+            OutputStreamWriter outputStream = new OutputStreamWriter(httpConnection.getOutputStream());
+            outputStream.write(content);
+            outputStream.close();
+            String response = IOUtils.toString(httpConnection.getInputStream());
+            // logger.trace("response back is :{}", response);
+            if (!"true".contains(response)) {
+                logger.warn(
+                        "Can not reach the espMilightHub directly, check you have entered the correct HUB_IP in the Things setup");
+            }
+        } catch (IOException e) {
+            logger.warn(
+                    "An error occured when trying to talk to your EspMilightHub directly, check the HUB_IP is correct. The error was :{}",
+                    e);
+        }
+    }
+
     @Override
     public void initialize() {
         logger.debug("Initializing the EspMilightHub opensource bridge.");
-        bridgeConfig = getThing().getConfiguration();
+        bridgeConfig = thing.getConfiguration();
+        if (bridgeConfig.get(CONFIG_HUB_IP) != null) {
+            putHttp("/settings",
+                    "{\"mqtt_topic_pattern\":\"milight/commands/:device_id/:device_type/:group_id\",\"mqtt_update_topic_pattern\":\"\",\"mqtt_state_topic_pattern\":\"milight/states/:device_id/:device_type/:group_id\",\"group_state_fields\":[\"state\",\"level\",\"hue\",\"saturation\",\"mode\",\"color_temp\",\"bulb_mode\"]}");
+        } else {
+            logger.info("No HUB_IP has been provided, binding can not auto setup the Hub for you.");
+        }
         checkConnectionJob = checkConnection.scheduleWithFixedDelay(pollConnection, 0, 10, TimeUnit.SECONDS);
     }
 

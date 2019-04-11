@@ -39,6 +39,7 @@ public class EspMilightHubBindingConstants {
 
     // Bridge config//
     public static final String CONFIG_MQTT_ADDRESS = "ADDR";
+    public static final String CONFIG_HUB_IP = "HUB_IP";
     public static final String CONFIG_MQTT_USER_NAME = "MQTT_USERNAME";
     public static final String CONFIG_MQTT_PASSWORD = "MQTT_PASSWORD";
     public static final String CONFIG_DEFAULT_COMMAND = "DEFAULT_COMMAND";

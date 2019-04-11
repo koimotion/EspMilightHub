@@ -12,6 +12,7 @@ Export-Package:
  org.openhab.binding.espmilighthub,
  org.openhab.binding.espmilighthub.handler
 Import-Package: 
+ org.apache.commons.io;version="2.2.0",
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.discovery,
