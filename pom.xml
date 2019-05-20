@@ -11,6 +11,10 @@
 	<artifactId>org.openhab.binding.espmilighthub</artifactId>
 	<name>openHAB Add-ons :: Bundles :: EspMilightHub Binding</name>
 	
+	<properties>
+    <bnd.importpackage>org.eclipse.paho.client.mqttv3*</bnd.importpackage>
+  	</properties>
+	
 <dependencies>
 <!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
 <dependency>
@@ -20,4 +24,5 @@
 <scope>provided</scope>
 </dependency>
 </dependencies>
+
 </project>
