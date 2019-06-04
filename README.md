@@ -98,28 +98,32 @@ Just drop the JAR file into the addons folder and you should have the binding wo
 
 # Key concept to understand for you to succeed
 
-To get this working you need to know that the Milight globes are 1 way and do NOT have any kind of ID code. Only the remotes have a non editable code in them and when you LINK the globe to a remote, the globe learns this code which is referred as the remotes "Device ID". The remote has a "Group ID" of 1 to 4 if the remote supports 4 groups (some remotes support more than 4). The binding requires things to have a specific format of ID so that they can be accessed:
+To get this working you need to know that the Milight globes are 1 way and do NOT have any kind of ID code in fact they do not transmit RF at all. The remotes have a non editable code in them and when you LINK the globe to a remote, the globe learns this code which is referred to as the remotes "Device ID". The remote also has a "Group ID" of 1 to 4 if the remote supports 4 groups (some remotes now support more than 4). 
+
+The binding requires things to have a specific format of ID so that they can be accessed if you do not use auto discovery:
 
 ```
-espmilighthub:type:BrokerUID:ThingUID
+espmilighthub:GlobeType:BridgeUID:ThingUID
 ```
 
 Place the Device ID and Group ID together to create the things unique ID (_ThingUID_). The manual configuration example below may make it clearer for you. The DeviceID can be in hex or decimal format but it must end with the number that is the GroupID (usually 0 for all in a group or 1 to 9 can be used). If you do not understand this key concept please post a question. 
 
 The formula is
-_ThingUID_ = DeviceID+GroupID
+DeviceID + GroupID = ThingUID
 
 For example:
 
-| Device ID | Group ID | Hex    | Decimal         |
-|-----------|----------|--------|-----------------|
-| 2         | 1        | 0x21   | 21              |
-| 0xb4c     | 1        | 0xb4c1 | Not recommended |
+| Device ID | Group ID |ThingUID  | 
+|-----------|----------|----------|
+| 0xC210    | 1        | 0xC2101  | 
+| 0xB4CA    | 4        | 0xB4CA4  | 
+| 0xB4CA    | 8        | 0xB4CA8  |
+| 0xB4CA    | 0        | 0xB4CA0  | Group ID of 0 is NOT recommended, use Openhab's groups instead.
 
-If the broker thing is `espmilighthub:esp8266Bridge:1234567` and the _ThingUID_ is `0xb4c1`, the overall thing ID in OpenHAB for an `rgb_cct` bulb must be:
+If the Bridge thing is `espmilighthub:esp8266Bridge:1234567` and the _ThingUID_ is `0xB4C1`, the overall thing ID in OpenHAB for an `rgb_cct` bulb must be:
 
 ```
-espmilighthub:rgb_cct:1234567:0xb4c1
+espmilighthub:rgb_cct:1234567:0xB4C1
 ```
 
 
@@ -172,14 +176,14 @@ Place the contents in a file called 'espmilighthub.things' and save it to your "
 Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456"]
 {
         Thing   rgb_cct 0xEC591 "Front Hall"    //comments are possible after double /  
-        Thing   cct 0xb4c81 "Lounge Lamp 1"
+        Thing   cct 0xB4C81 "Lounge Lamp 1"
         Thing   rgb_cct 0xAB13 "Linen Hall 2"       
         Thing   rgbw 20 "Bathroom Mirror All"
         Thing   rgbw 21 "Bathroom Mirror 1" //Street end
         Thing   rgbw 22 "Bathroom Mirror 2"  
         Thing   rgbw 23 "Bathroom Mirror 3"   
         Thing   rgbw 24 "Bathroom Mirror 4"          
-        Thing   rgb 0xe671 "Bed2 Hall"
+        Thing   rgb 0xE671 "Bed2 Hall"
 }
 ```
 
@@ -210,9 +214,9 @@ Color  Milight_ID0xEC59_G1_Hue    "Front Hall" ["Lighting"] {channel="espmilight
 String Milight_ID0xEC59_G1_Cmd      "Command to Send"      {channel="espmilighthub:rgb_cct:001:0xEC591:bulbcommand"}
 Switch Milight_ID0xEC59_G1_SndCmd    "Send Command"            {channel="espmilighthub:rgb_cct:001:0xEC591:sendbulbcommand"}
 
-Switch Milight_ID2_G1_State     "Lounge Lamp 1"  ["Switchable"] {channel="espmilighthub:cct:001:0xb4c81:level"}
-Dimmer Milight_ID2_G1_Level     "Brightness [%d %%]"            {channel="espmilighthub:cct:001:0xb4c81:level"}
-Dimmer Milight_ID2_G1_CTemp         "White Color Temp"          {channel="espmilighthub:cct:001:0xb4c81:colourtemperature"}
+Switch Milight_ID2_G1_State     "Lounge Lamp 1"  ["Switchable"] {channel="espmilighthub:cct:001:0xB4C81:level"}
+Dimmer Milight_ID2_G1_Level     "Brightness [%d %%]"            {channel="espmilighthub:cct:001:0xB4C81:level"}
+Dimmer Milight_ID2_G1_CTemp         "White Color Temp"          {channel="espmilighthub:cct:001:0xB4C81:colourtemperature"}
 ```
 
 And a sample of the sitemap contents:
