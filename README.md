@@ -98,18 +98,29 @@ Just drop the JAR file into the addons folder and you should have the binding wo
 
 # Key concept to understand for you to succeed
 
-To get this working you need to know that the Milight globes are 1 way and do NOT have any kind of ID code. Only the remotes have a non editable code in them and when you LINK the globe to a remote, the globe learns this code which is referred as the remotes "Device ID". The remote has a "Group ID" of 1 to 4 if the remote supports 4 groups (some remotes support more than 4). The binding requires you to place these two numbers together to create the things unique ID. By looking at the manual configuration example below this may make it clearer for you. The DeviceID can be in hex or decimal format but it must end with the number that is the GroupID (usually 0 for all in a group or 1 to 9 can be used). If you do not understand this key concept please post a question. 
+To get this working you need to know that the Milight globes are 1 way and do NOT have any kind of ID code. Only the remotes have a non editable code in them and when you LINK the globe to a remote, the globe learns this code which is referred as the remotes "Device ID". The remote has a "Group ID" of 1 to 4 if the remote supports 4 groups (some remotes support more than 4). The binding requires things to have a specific format of ID so that they can be accessed:
+
+```
+espmilighthub:type:BrokerUID:ThingUID
+```
+
+Place the Device ID and Group ID together to create the things unique ID (_ThingUID_). The manual configuration example below may make it clearer for you. The DeviceID can be in hex or decimal format but it must end with the number that is the GroupID (usually 0 for all in a group or 1 to 9 can be used). If you do not understand this key concept please post a question. 
 
 The formula is
-ThingUID = DeviceID+GroupID
+_ThingUID_ = DeviceID+GroupID
 
-examples:
+For example:
 
-HEX
-0xb4c1 = DeviceID is 0xb4c and GroupID is 1
+| Device ID | Group ID | Hex    | Decimal         |
+|-----------|----------|--------|-----------------|
+| 2         | 1        | 0x21   | 21              |
+| 0xb4c     | 1        | 0xb4c1 | Not recommended |
 
-Decimal (I don't recommend using decimal as it confuses too many people)
-21 = DeviceID is 2 and GroupID is 1
+If the broker thing is `espmilighthub:esp8266Bridge:1234567` and the _ThingUID_ is `0xb4c1`, the overall thing ID in OpenHAB for an `rgb_cct` bulb must be:
+
+```
+espmilighthub:rgb_cct:1234567:0xb4c1
+```
 
 
 ## Supported Things
