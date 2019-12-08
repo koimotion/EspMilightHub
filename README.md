@@ -173,7 +173,7 @@ Manual configuration of the binding is my preferred method as I find it far fast
 Place the contents in a file called 'espmilighthub.things' and save it to your "things" folder.
 
 ```   
-Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://192.168.1.100:1883", MQTT_USERNAME="myusername", MQTT_PASSWORD="Suitcase123456"]
+Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://localhost:1883", MQTT_USERNAME="user", MQTT_PASSWORD="12345678", 1TRIGGERS_NIGHT_MODE=true, DELAY_BETWEEN_MQTT=40, POWERFAILS_TO_MINDIM=true, AUTOCTEMP_MAXDIMMED_TEMPERATURE=350, FAVOURITE_WHITE=200, HUB_IP="192.168.1.40"]
 {
         Thing   rgb_cct 0xEC591 "Front Hall"    //comments are possible after double /  
         Thing   cct 0xB4C81 "Lounge Lamp 1"
@@ -199,6 +199,7 @@ Additional bridge settings can be made with these:
 + RGBW_WHITEMODE_SAT_THRESHOLD
 + POWERFAILS_TO_MINDIM
 + AUTOCTEMP_MAXDIMMED_TEMPERATURE
++ HUB_IP
 
 
 By looking in PaperUI at your bridge (click on the pencil icon) you will get descriptions on what these do and what valid ranges are. If you use manual text configuration you can not change them in paperUI otherwise you get a conflict message in paperUI. 
