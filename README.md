@@ -191,6 +191,9 @@ Bridge espmilighthub:esp8266Bridge:001 [ADDR="tcp://localhost:1883", MQTT_USERNA
 
 Additional bridge settings can be made with these:
 
++ ADDR
++ MQTT_USERNAME
++ MQTT_PASSWORD
 + FAVOURITE_WHITE
 + DELAY_BETWEEN_MQTT
 + DELAY_BETWEEN_SAME_GLOBE
@@ -202,6 +205,8 @@ Additional bridge settings can be made with these:
 + POWERFAILS_TO_MINDIM
 + AUTOCTEMP_MAXDIMMED_TEMPERATURE
 + HUB_IP
++ LEVEL_FOLLOWS_COLOUR
+
 
 
 By looking in PaperUI at your bridge (click on the pencil icon) you will get descriptions on what these do and what valid ranges are. If you use manual text configuration you can not change them in paperUI otherwise you get a conflict message in paperUI. 
