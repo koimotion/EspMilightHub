@@ -107,7 +107,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                     if ("cct".equals(globeType)) {
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\"}");
                     } else {
-                        bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + this.savedLevel + "}");
+                        bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + savedLevel + "}");
                     }
                     return;
 
@@ -125,7 +125,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                     }
                 }
 
-                this.savedLevel = Integer.parseInt(command.toString());
+                savedLevel = Integer.parseInt(command.toString());
                 break;
 
             case CHANNEL_BULB_MODE:
@@ -174,7 +174,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
 
             case CHANNEL_COLOUR:
                 if ("ON".equals(command.toString())) {
-                    bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + this.savedLevel + "}");
+                    bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + savedLevel + "}");
                     break;
                 } else if ("0".equals(command.toString()) || "OFF".equals(command.toString())) {
 
@@ -226,7 +226,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                             "{\"state\":\"ON\",\"level\":" + hsb.getBrightness().intValue() + ",\"hue\":"
                                     + hsb.getHue().intValue() + ",\"saturation\":" + hsb.getSaturation().intValue()
                                     + "}");
-                    this.savedLevel = hsb.getBrightness().intValue();
+                    savedLevel = hsb.getBrightness().intValue();
                     break;
                 } // end of HSB type//
 
@@ -238,12 +238,9 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 }
 
                 bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + command.toString() + "}");
-                this.savedLevel = Integer.parseInt(command.toString());
+                savedLevel = Integer.parseInt(command.toString());
 
                 if (globeType.equals("rgb_cct") || globeType.equals("fut089")) {
-
-                    // logger.debug("BulbMode is:{}", bulbMode);
-
                     if (bridgeHandler.getAutoCTempValue() != 0 && bulbMode.equals("white")) {
                         bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"color_temp\":"
                                 + autoColourTemp(Integer.parseInt(command.toString())) + "}");

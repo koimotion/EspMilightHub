@@ -184,14 +184,13 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                 // Halogen dimming needs CHANNEL_BULB_MODE linked for the feature to work!
                 postCommand(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_BULB_MODE), new StringType("white"));
+                updateState(new ChannelUID(channelPrefix + CHANNEL_COLOUR), new HSBType("0,0," + iBulbLevel));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_DISCO_MODE), new DecimalType("-1"));
             }
             String bulbCTemp = resolveJSON(messageJSON, "\"color_temp\":", 3);
             if (!bulbCTemp.isEmpty()) {
-                // logger.trace("bulbCTemp\t={}", bulbCTemp);
                 int ibulbCTemp = (int) Math.round(((Float.valueOf(bulbCTemp) / 2.17) - 171) * -1);
                 updateState(new ChannelUID(channelPrefix + CHANNEL_COLOURTEMP), new PercentType(ibulbCTemp));
-                // logger.trace("CTemp Int\t={}", ibulbCTemp);
             }
 
         } else if ("color".equals(bulbMode)) {
