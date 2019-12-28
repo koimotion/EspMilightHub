@@ -61,7 +61,7 @@
 <label>The HUE value that Google home or Echo can use to turn globes back to true white.</label>
 <description>When both these Hue and Saturation values are seen by the binding it will trigger the light to turn back to using the white LEDS instead of using the RGB to emulate white. Set to -1 to disable, 0 for Alexa, or 36 for Google Home.
 </description>
-<default>36</default>
+<default>35</default>
 </parameter>
 
 <parameter name="TRIGGER_WHITE_SAT" type="integer" required="true" min="-1" max="100" groupName="Whitemode Shortcuts">
