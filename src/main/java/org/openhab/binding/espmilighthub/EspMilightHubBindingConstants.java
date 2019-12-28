@@ -52,6 +52,7 @@ public class EspMilightHubBindingConstants {
     public static final String CONFIG_1TRIGGERS_NIGHT_MODE = "1TRIGGERS_NIGHT_MODE";
     public static final String CONFIG_RGBW_WHITEMODE_SAT_THRESHOLD = "RGBW_WHITEMODE_SAT_THRESHOLD";
     public static final String CONFIG_POWERFAILS_TO_MINDIM = "POWERFAILS_TO_MINDIM";
+    public static final String CONFIG_LEVEL_FOLLOWS_COLOUR = "LEVEL_FOLLOWS_COLOUR";
 
     // Globe channels
     public static final String CHANNEL_LEVEL = "level";

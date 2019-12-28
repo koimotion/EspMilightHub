@@ -112,6 +112,13 @@
 <default>false</default>
 </parameter>
 
+<parameter name="LEVEL_FOLLOWS_COLOUR" type="boolean" required="true" groupName="Globe Settings">
+<label>LEVEL_FOLLOWS_COLOUR</label>
+<description>If set to false, this option remembers how bright colours are independantly to the white brightness.
+</description>
+<default>true</default>
+</parameter>
+
 <parameter name="RGBW_WHITEMODE_SAT_THRESHOLD" type="integer" required="true" min="-1" max="99" groupName="Whitemode Shortcuts">
 <label>Saturation threshold for triggering white mode (RGBW globes only).</label>
 <description>Since RGBW globes do not respond to saturation changes, this feature allows you to specify a number that if the saturation drops below it will trigger the white mode. -1 will disable this feature.

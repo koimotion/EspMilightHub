@@ -162,7 +162,11 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             if ("0".equals(bulbLevel) || bulbState.contains("OFF")) {
                 updateState(new ChannelUID(channelPrefix + CHANNEL_LEVEL), new PercentType(0));
                 updateState(new ChannelUID(channelPrefix + CHANNEL_LEVEL), OnOffType.valueOf("OFF"));
-                return;
+                if ((boolean) bridgeConfig.get(CONFIG_LEVEL_FOLLOWS_COLOUR)) {
+                    iBulbLevel = 0;
+                } else {
+                    return;
+                }
             } else {
                 iBulbLevel = Math.round(Float.valueOf(bulbLevel));
                 // logger.trace("iBulbLevel\t={}", iBulbLevel);
