@@ -133,6 +133,8 @@ A bridge can have any of these things added which are the types of globes the op
 
 + cct
 + rgb_cct
++ fut089
++ fut091
 + rgbw
 + rgb
 

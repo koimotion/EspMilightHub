@@ -45,7 +45,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
     private String globeLocation = this.getThing().getUID().getId();// eg 0x014
     private String remotesGroupID = globeLocation.substring(globeLocation.length() - 1, globeLocation.length());// eg 4
     private String remotesIDCode = globeLocation.substring(0, globeLocation.length() - 1);// eg 0x01
-    private String savedLevel = "100";
+    private int savedLevel = 100;
     private String lastCommand = "empty";
     private EspMilightHubBridgeHandler bridgeHandler;
     private String bulbMode = "empty";
@@ -125,7 +125,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                     }
                 }
 
-                this.savedLevel = command.toString();
+                this.savedLevel = Integer.parseInt(command.toString());
                 break;
 
             case CHANNEL_BULB_MODE:
@@ -134,7 +134,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 break;
 
             case CHANNEL_COLOURTEMP:
-                int scaledCommand = (int) Math.round((370 - (2.17 * Float.valueOf(command.toString()))));
+                int scaledCommand = (int) Math.round((370 - (2.17 * Integer.valueOf(command.toString()))));
                 bridgeHandler.queueToSendMQTT(topic,
                         "{\"state\":\"ON\",\"level\":" + savedLevel + ",\"color_temp\":" + scaledCommand + "}");
                 break;
@@ -226,7 +226,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                             "{\"state\":\"ON\",\"level\":" + hsb.getBrightness().intValue() + ",\"hue\":"
                                     + hsb.getHue().intValue() + ",\"saturation\":" + hsb.getSaturation().intValue()
                                     + "}");
-                    this.savedLevel = hsb.getBrightness().toString();
+                    this.savedLevel = hsb.getBrightness().intValue();
                     break;
                 } // end of HSB type//
 
@@ -238,7 +238,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 }
 
                 bridgeHandler.queueToSendMQTT(topic, "{\"state\":\"ON\",\"level\":" + command.toString() + "}");
-                this.savedLevel = command.toString();
+                this.savedLevel = Integer.parseInt(command.toString());
 
                 if (globeType.equals("rgb_cct") || globeType.equals("fut089")) {
 
