@@ -618,8 +618,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             outputStream.write(content);
             outputStream.close();
             String response = IOUtils.toString(httpConnection.getInputStream());
-            // logger.trace("response back is :{}", response);
-            if (!"true".contains(response)) {
+            if (!response.contains("true")) {
                 logger.warn(
                         "Can not reach the espMilightHub directly, check you have entered the correct HUB_IP in the Things setup");
             }
@@ -645,9 +644,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     @Override
     public void dispose() {
-        logger.info("Bridge dispose() called, disconnecting from the MQTT broker.");
         disconnectMQTT();
-
         if (sendQueuedMQTTTimerJob != null) {
             sendQueuedMQTTTimerJob.cancel(true);
             sendQueuedMQTTTimerJob = null;
