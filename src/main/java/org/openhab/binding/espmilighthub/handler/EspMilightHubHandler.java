@@ -134,7 +134,7 @@ public class EspMilightHubHandler extends BaseThingHandler {
                 break;
 
             case CHANNEL_COLOURTEMP:
-                int scaledCommand = (int) Math.round((370 - (2.17 * Integer.valueOf(command.toString()))));
+                int scaledCommand = (int) Math.round((370 - (2.17 * Float.valueOf(command.toString()))));
                 bridgeHandler.queueToSendMQTT(topic,
                         "{\"state\":\"ON\",\"level\":" + savedLevel + ",\"color_temp\":" + scaledCommand + "}");
                 break;
