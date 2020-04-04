@@ -329,6 +329,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public void connectComplete(boolean reconnect, java.lang.String serverURI) {
         logger.info("Sucessfully connected to the MQTT broker.");
         updateStatus(ThingStatus.ONLINE);
+        recordBridgeID();
     }
 
     @Override
@@ -339,7 +340,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     }
 
     public boolean connectMQTT(boolean useCleanSession) {
-
+        logger.debug("connectMQTT() called");
         try {
             client = new MqttClient(bridgeConfig.get(CONFIG_MQTT_ADDRESS).toString(),
                     "espMilightHub:" + this.getThing().getUID().getId().toString(), new MemoryPersistence());
@@ -356,7 +357,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             options.setMaxInflight(30); // up to 30 messages at once can be sent without a token back
             options.setAutomaticReconnect(true);
             options.setKeepAliveInterval(15);
-            options.setConnectionTimeout(20); // connection must be made in under 20 seconds
+            options.setConnectionTimeout(25); // connection must be made in under 20 seconds
             client.setCallback(this);
             client.connect(options);
         } catch (MqttException e) {
@@ -496,10 +497,10 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     public void disconnectMQTT() {
         try {
+            logger.debug("disconnectMQTT() is going to disconnect from the MQTT broker.");
+            client.disconnect();
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     "Currently disconnected from the MQTT broker.");
-            client.disconnect();
-            logger.debug("disconnectMQTT() is going to disconnect from the MQTT broker.");
             // wait needed to fix issue when trying to reconnect too fast after a disconnect.
             Thread.sleep(3000);
         } catch (MqttException | InterruptedException e) {
@@ -570,27 +571,14 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     subscribeToMQTT();
                 }
             } else {
-                logger.debug("pollFirstConnection() is trying to connect to your MQTT broker now.");
-                if (connectMQTT(false)) {// connect
-                                         // to
-                                         // get
-                                         // a
-                                         // full
-                                         // list
-                                         // of
-                                         // globe
-                                         // states//
-                    recordBridgeID();
-                } else {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                            "Could not connect to the MQTT broker, check the address, user and pasword are correct and the broker is online.");
-                }
+                logger.debug("pollFirstConnection() is trying to connect to your MQTT broker and failing.");
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                        "Could not connect to the MQTT broker, check the address, user and pasword are correct and the broker is online.");
             }
         }
     };
 
     private String getHttp(String urlFilePath) throws IOException {
-
         String urlString = "http://" + bridgeConfig.get(CONFIG_HUB_IP) + urlFilePath;
         URL url;
         url = new URL(urlString);
@@ -639,11 +627,13 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         } else {
             logger.info("No HUB_IP has been provided, binding can not auto setup the Hub for you.");
         }
-        checkConnectionJob = checkConnection.scheduleWithFixedDelay(pollConnection, 0, 10, TimeUnit.SECONDS);
+        connectMQTT(false);
+        checkConnectionJob = checkConnection.scheduleWithFixedDelay(pollConnection, 5, 10, TimeUnit.SECONDS);
     }
 
     @Override
     public void dispose() {
+        logger.debug("dispose() called");
         disconnectMQTT();
         if (sendQueuedMQTTTimerJob != null) {
             sendQueuedMQTTTimerJob.cancel(true);
