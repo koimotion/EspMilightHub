@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -88,7 +87,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     private LinkedList<String> fifoIncommingPayload = new LinkedList<String>();
     public ReentrantLock lockInComming = new ReentrantLock();
 
-    private MqttClient client;
+    private MqttClient client = null;
     private Configuration bridgeConfig;
     private boolean increaseChoke = false;
     EspMilightHubHandler childHandler;
@@ -340,7 +339,6 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     }
 
     public boolean connectMQTT(boolean useCleanSession) {
-        // logger.debug("connectMQTT() called");
         try {
             client = new MqttClient(bridgeConfig.get(CONFIG_MQTT_ADDRESS).toString(),
                     "espMilightHub:" + this.getThing().getUID().getId().toString(), new MemoryPersistence());
@@ -362,6 +360,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             client.connect(options);
         } catch (MqttException e) {
             logger.error("Error: Could not connect to MQTT broker.{}", e);
+            client = null;
             return false;
         }
         confirmedAddress = bridgeConfig.get(CONFIG_MQTT_ADDRESS).toString();
@@ -497,12 +496,12 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     public void disconnectMQTT() {
         try {
-            logger.debug("disconnectMQTT() is going to disconnect from the MQTT broker.");
             client.disconnect();
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     "Currently disconnected from the MQTT broker.");
+            client = null;
             // wait needed to fix issue when trying to reconnect too fast after a disconnect.
-            // Thread.sleep(3000);
+            // Thread.sleep(1000);
         } catch (MqttException e) {
             logger.error("Could not disconnect from MQTT broker.{}", e);
         }
@@ -562,21 +561,6 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         confirmedBridgeUID = this.getThing().getUID();
     }
 
-    private String getHttp(String urlFilePath) throws IOException {
-        String urlString = "http://" + bridgeConfig.get(CONFIG_HUB_IP) + urlFilePath;
-        URL url;
-        url = new URL(urlString);
-        URLConnection urlConnection = url.openConnection();
-        urlConnection.setConnectTimeout(3000);
-        try {
-            String response = IOUtils.toString(urlConnection.getInputStream());
-            // logger.info("response = {}", response);
-            return response;
-        } finally {
-            IOUtils.closeQuietly(urlConnection.getInputStream());
-        }
-    }
-
     private void putHttp(String urlFilePath, String content) {
         String urlString = "http://" + bridgeConfig.get(CONFIG_HUB_IP) + urlFilePath;
         URL url;
@@ -610,8 +594,8 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
                     triggerRefresh = false;
                     subscribeToMQTT();
                 }
-            } else {
-                updateStatus(ThingStatus.INITIALIZING, ThingStatusDetail.CONFIGURATION_PENDING,
+            } else if (client == null) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
                         "Trying to connect to the MQTT broker now, check the address, user and pasword are correct and the broker is online.");
                 connectMQTT(false);
             }
@@ -632,7 +616,9 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
 
     @Override
     public void dispose() {
-        disconnectMQTT();
+        if (client != null) {
+            disconnectMQTT();
+        }
         if (sendQueuedMQTTTimerJob != null) {
             sendQueuedMQTTTimerJob.cancel(true);
             sendQueuedMQTTTimerJob = null;
