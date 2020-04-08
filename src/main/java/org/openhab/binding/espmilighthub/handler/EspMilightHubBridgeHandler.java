@@ -74,7 +74,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     public static String confirmedUser = "empty";
     public static String confirmedPassword = "empty";
     public static ThingUID confirmedBridgeUID;
-    public static boolean triggerRefresh = true;
+    static boolean triggerRefresh = true;
 
     private final ScheduledExecutorService schedulerOut = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> sendQueuedMQTTTimerJob = null;
@@ -340,7 +340,7 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
     }
 
     public boolean connectMQTT(boolean useCleanSession) {
-        logger.debug("connectMQTT() called");
+        // logger.debug("connectMQTT() called");
         try {
             client = new MqttClient(bridgeConfig.get(CONFIG_MQTT_ADDRESS).toString(),
                     "espMilightHub:" + this.getThing().getUID().getId().toString(), new MemoryPersistence());
@@ -356,8 +356,8 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             }
             options.setMaxInflight(30); // up to 30 messages at once can be sent without a token back
             options.setAutomaticReconnect(true);
-            options.setKeepAliveInterval(15);
-            options.setConnectionTimeout(25); // connection must be made in under 20 seconds
+            options.setKeepAliveInterval(20);
+            options.setConnectionTimeout(20); // connection must be made in under 20 seconds
             client.setCallback(this);
             client.connect(options);
         } catch (MqttException e) {
@@ -502,8 +502,8 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     "Currently disconnected from the MQTT broker.");
             // wait needed to fix issue when trying to reconnect too fast after a disconnect.
-            Thread.sleep(3000);
-        } catch (MqttException | InterruptedException e) {
+            // Thread.sleep(3000);
+        } catch (MqttException e) {
             logger.error("Could not disconnect from MQTT broker.{}", e);
         }
     }
@@ -562,22 +562,6 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         confirmedBridgeUID = this.getThing().getUID();
     }
 
-    Runnable pollConnection = new Runnable() {
-        @Override
-        public void run() {
-            if (thing.getStatus() == ThingStatus.ONLINE) {
-                if (triggerRefresh) {
-                    triggerRefresh = false;
-                    subscribeToMQTT();
-                }
-            } else {
-                logger.debug("pollFirstConnection() is trying to connect to your MQTT broker and failing.");
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                        "Could not connect to the MQTT broker, check the address, user and pasword are correct and the broker is online.");
-            }
-        }
-    };
-
     private String getHttp(String urlFilePath) throws IOException {
         String urlString = "http://" + bridgeConfig.get(CONFIG_HUB_IP) + urlFilePath;
         URL url;
@@ -617,9 +601,25 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         }
     }
 
+    Runnable pollConnection = new Runnable() {
+        @Override
+        public void run() {
+            if (thing.getStatus() == ThingStatus.ONLINE) {
+                // This runs every 30 seconds to check if the REFRESH command has been sent by Openhab
+                if (triggerRefresh) {
+                    triggerRefresh = false;
+                    subscribeToMQTT();
+                }
+            } else {
+                updateStatus(ThingStatus.INITIALIZING, ThingStatusDetail.CONFIGURATION_PENDING,
+                        "Trying to connect to the MQTT broker now, check the address, user and pasword are correct and the broker is online.");
+                connectMQTT(false);
+            }
+        }
+    };
+
     @Override
     public void initialize() {
-        logger.debug("Initializing the EspMilightHub opensource bridge.");
         bridgeConfig = thing.getConfiguration();
         if (bridgeConfig.get(CONFIG_HUB_IP) != null) {
             putHttp("/settings",
@@ -627,13 +627,11 @@ public class EspMilightHubBridgeHandler extends BaseBridgeHandler implements Mqt
         } else {
             logger.info("No HUB_IP has been provided, binding can not auto setup the Hub for you.");
         }
-        connectMQTT(false);
-        checkConnectionJob = checkConnection.scheduleWithFixedDelay(pollConnection, 5, 10, TimeUnit.SECONDS);
+        checkConnectionJob = checkConnection.scheduleWithFixedDelay(pollConnection, 5, 30, TimeUnit.SECONDS);
     }
 
     @Override
     public void dispose() {
-        logger.debug("dispose() called");
         disconnectMQTT();
         if (sendQueuedMQTTTimerJob != null) {
             sendQueuedMQTTTimerJob.cancel(true);
